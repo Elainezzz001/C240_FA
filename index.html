@@ -1,277 +1,293 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="RPay Admin - Republic Polytechnic Student Financial Portal">
-    <title>RPay Admin - RP Student Financial Portal</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="icon" type="image/png" href="logo/RP Logo.png">
-</head>
-<body>
-    <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <img src="logo/RP Logo.png" alt="Republic Polytechnic Logo" class="logo">
-                <h1>RPay Admin</h1>
-            </div>
-            <nav class="nav" role="navigation" aria-label="Main navigation">
-                <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
-                <ul class="nav-list">
-                    <li><button class="nav-link active" data-tab="dashboard" aria-controls="dashboard-panel">Dashboard</button></li>
-                    <li><button class="nav-link" data-tab="payments" aria-controls="payments-panel">Payments</button></li>
-                    <li><button class="nav-link" data-tab="scholarships" aria-controls="scholarships-panel">Scholarships</button></li>
-                    <li><button class="nav-link" data-tab="transactions" aria-controls="transactions-panel">Transactions</button></li>
-                    <li><button class="nav-link" data-tab="profile" aria-controls="profile-panel">Profile</button></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
 
-    <main class="main">
-        <div class="container">
-            <!-- Dashboard Tab -->
-            <section id="dashboard-panel" class="tab-panel active" role="tabpanel" aria-labelledby="dashboard-tab">
-                <h2>Dashboard</h2>
-                <div class="dashboard-grid">
-                    <div class="card">
-                        <h3>Outstanding Fees</h3>
-                        <div class="amount outstanding">$1,250.00</div>
-                        <button class="btn btn-primary">Pay Now</button>
-                    </div>
-                    <div class="card">
-                        <h3>Scholarship Status</h3>
-                        <div class="status approved">Approved</div>
-                        <p>Merit Scholarship - $2,000</p>
-                    </div>
-                    <div class="card">
-                        <h3>Recent Transactions</h3>
-                        <div class="transaction-item">
-                            <span>Tuition Fee Payment</span>
-                            <span class="amount">-$3,500.00</span>
-                        </div>
-                        <button class="btn btn-secondary">View All</button>
-                    </div>
-                    <div class="card">
-                        <h3>Quick Actions</h3>
-                        <div class="quick-actions">
-                            <button class="btn btn-outline">Download Receipt</button>
-                            <button class="btn btn-outline">Apply for Bursary</button>
-                        </div>
-                    </div>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="RPay Admin - Republic Polytechnic Student Financial Portal">
+        <title>RPay Admin - RP Student Financial Portal</title>
+        <link rel="stylesheet" href="css/styles.css">
+        <link rel="icon" type="image/png" href="logo/RP Logo.png">
+    </head>
+
+    <body>
+        <header class="header">
+            <div class="container">
+                <div class="header-content">
+                    <img src="logo/RP Logo.png" alt="Republic Polytechnic Logo" class="logo">
+                    <h1>RPay Admin</h1>
                 </div>
-            </section>
+                <nav class="nav" role="navigation" aria-label="Main navigation">
+                    <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
+                    <ul class="nav-list">
+                        <li><button class="nav-link active" data-tab="dashboard"
+                                aria-controls="dashboard-panel">Dashboard</button></li>
+                        <li><button class="nav-link" data-tab="payments"
+                                aria-controls="payments-panel">Payments</button></li>
+                        <li><button class="nav-link" data-tab="scholarships"
+                                aria-controls="scholarships-panel">Scholarships</button></li>
+                        <li><button class="nav-link" data-tab="transactions"
+                                aria-controls="transactions-panel">Transactions</button></li>
+                        <li><button class="nav-link" data-tab="profile" aria-controls="profile-panel">Profile</button>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
 
-            <!-- Payments Tab -->
-            <section id="payments-panel" class="tab-panel" role="tabpanel" aria-labelledby="payments-tab">
-                <h2>Payments</h2>
-                <div class="payments-section">
-                    <div class="card">
-                        <h3>Outstanding Payments</h3>
-                        <div class="payment-item">
-                            <div>
-                                <h4>Semester 2 Tuition</h4>
-                                <p>Due: 15 Aug 2025</p>
-                            </div>
-                            <div class="payment-amount">$3,500.00</div>
+        <main class="main">
+            <div class="container">
+                <!-- Dashboard Tab -->
+                <section id="dashboard-panel" class="tab-panel active" role="tabpanel" aria-labelledby="dashboard-tab">
+                    <h2>Dashboard</h2>
+                    <div class="dashboard-grid">
+                        <div class="card">
+                            <h3>Outstanding Fees</h3>
+                            <div class="amount outstanding">$1,250.00</div>
                             <button class="btn btn-primary">Pay Now</button>
                         </div>
-                        <div class="payment-item">
-                            <div>
-                                <h4>Lab Equipment Fee</h4>
-                                <p>Due: 30 Aug 2025</p>
+                        <div class="card">
+                            <h3>Scholarship Status</h3>
+                            <div class="status approved">Approved</div>
+                            <p>Merit Scholarship - $2,000</p>
+                        </div>
+                        <div class="card">
+                            <h3>Recent Transactions</h3>
+                            <div class="transaction-item">
+                                <span>Tuition Fee Payment</span>
+                                <span class="amount">-$3,500.00</span>
                             </div>
-                            <div class="payment-amount">$250.00</div>
-                            <button class="btn btn-primary">Pay Now</button>
+                            <button class="btn btn-secondary">View All</button>
+                        </div>
+                        <div class="card">
+                            <h3>Quick Actions</h3>
+                            <div class="quick-actions">
+                                <button class="btn btn-outline">Download Receipt</button>
+                                <button class="btn btn-outline">Apply for Bursary</button>
+                            </div>
                         </div>
                     </div>
-                    <div class="card">
-                        <h3>Payment History</h3>
-                        <div class="payment-item completed">
-                            <div>
-                                <h4>Semester 1 Tuition</h4>
-                                <p>Paid: 15 Jan 2025</p>
-                            </div>
-                            <div class="payment-amount">$3,500.00</div>
-                            <button class="btn btn-outline">Download Receipt</button>
-                        </div>
-                    </div>
-                </div>
-            </section>
+                </section>
 
-            <!-- Scholarships Tab -->
-            <section id="scholarships-panel" class="tab-panel" role="tabpanel" aria-labelledby="scholarships-tab">
-                <h2>Scholarships & Bursaries</h2>
-                <div class="scholarships-section">
-                    <div class="card">
-                        <h3>Current Scholarships</h3>
-                        <div class="scholarship-item">
-                            <h4>Merit Scholarship</h4>
-                            <p>Amount: $2,000 per semester</p>
-                            <div class="status approved">Active</div>
+                <!-- Payments Tab -->
+                <section id="payments-panel" class="tab-panel" role="tabpanel" aria-labelledby="payments-tab">
+                    <h2>Payments</h2>
+                    <div class="payments-section">
+                        <div class="card">
+                            <h3>Outstanding Payments</h3>
+                            <div class="payment-item">
+                                <div>
+                                    <h4>Semester 2 Tuition</h4>
+                                    <p>Due: 15 Aug 2025</p>
+                                </div>
+                                <div class="payment-amount">$3,500.00</div>
+                                <button class="btn btn-primary">Pay Now</button>
+                            </div>
+                            <div class="payment-item">
+                                <div>
+                                    <h4>Lab Equipment Fee</h4>
+                                    <p>Due: 30 Aug 2025</p>
+                                </div>
+                                <div class="payment-amount">$250.00</div>
+                                <button class="btn btn-primary">Pay Now</button>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <h3>Payment History</h3>
+                            <div class="payment-item completed">
+                                <div>
+                                    <h4>Semester 1 Tuition</h4>
+                                    <p>Paid: 15 Jan 2025</p>
+                                </div>
+                                <div class="payment-amount">$3,500.00</div>
+                                <button class="btn btn-outline">Download Receipt</button>
+                            </div>
                         </div>
                     </div>
-                    <div class="card">
-                        <h3>Available Applications</h3>
-                        <div class="scholarship-item">
-                            <h4>Financial Need Bursary</h4>
-                            <p>Up to $1,500 per semester</p>
-                            <button class="btn btn-primary" onclick="openModal('bursaryModal')">Apply Now</button>
-                        </div>
-                        <div class="scholarship-item">
-                            <h4>Academic Excellence Award</h4>
-                            <p>$3,000 one-time award</p>
-                            <button class="btn btn-primary" onclick="openModal('excellenceModal')">Apply Now</button>
-                        </div>
-                    </div>
-                </div>
-            </section>
+                </section>
 
-            <!-- Transactions Tab -->
-            <section id="transactions-panel" class="tab-panel" role="tabpanel" aria-labelledby="transactions-tab">
-                <h2>Transaction History</h2>
-                <div class="transactions-section">
-                    <div class="card">
-                        <div class="table-controls">
-                            <input type="text" id="transaction-search" placeholder="Search transactions..." class="search-input">
-                            <select id="transaction-filter" class="filter-select">
-                                <option value="">All Types</option>
-                                <option value="payment">Payments</option>
-                                <option value="scholarship">Scholarships</option>
-                                <option value="refund">Refunds</option>
-                            </select>
+                <!-- Scholarships Tab -->
+                <section id="scholarships-panel" class="tab-panel" role="tabpanel" aria-labelledby="scholarships-tab">
+                    <h2>Scholarships & Bursaries</h2>
+                    <div class="scholarships-section">
+                        <div class="card">
+                            <h3>Current Scholarships</h3>
+                            <div class="scholarship-item">
+                                <h4>Merit Scholarship</h4>
+                                <p>Amount: $2,000 per semester</p>
+                                <div class="status approved">Active</div>
+                            </div>
                         </div>
-                        <div class="table-responsive">
-                            <table class="transactions-table">
-                                <thead>
-                                    <tr>
-                                        <th class="sortable" data-sort="date">Date</th>
-                                        <th class="sortable" data-sort="description">Description</th>
-                                        <th class="sortable" data-sort="type">Type</th>
-                                        <th class="sortable" data-sort="amount">Amount</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="transactions-tbody">
-                                    <!-- Transactions will be populated by JavaScript -->
-                                </tbody>
-                            </table>
+                        <div class="card">
+                            <h3>Available Applications</h3>
+                            <div class="scholarship-item">
+                                <h4>Financial Need Bursary</h4>
+                                <p>Up to $1,500 per semester</p>
+                                <button class="btn btn-primary" onclick="openModal('bursaryModal')">Apply Now</button>
+                            </div>
+                            <div class="scholarship-item">
+                                <h4>Academic Excellence Award</h4>
+                                <p>$3,000 one-time award</p>
+                                <button class="btn btn-primary" onclick="openModal('excellenceModal')">Apply
+                                    Now</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </section>
+                </section>
 
-            <!-- Profile Tab -->
-            <section id="profile-panel" class="tab-panel" role="tabpanel" aria-labelledby="profile-tab">
-                <h2>Profile</h2>
-                <div class="profile-section">
-                    <div class="card">
-                        <h3>Student Information</h3>
-                        <div class="profile-info">
-                            <div class="info-item">
-                                <label>Student ID:</label>
-                                <span>C240XXXX</span>
+                <!-- Transactions Tab -->
+                <section id="transactions-panel" class="tab-panel" role="tabpanel" aria-labelledby="transactions-tab">
+                    <h2>Transaction History</h2>
+                    <div class="transactions-section">
+                        <div class="card">
+                            <div class="table-controls">
+                                <input type="text" id="transaction-search" placeholder="Search transactions..."
+                                    class="search-input">
+                                <select id="transaction-filter" class="filter-select">
+                                    <option value="">All Types</option>
+                                    <option value="payment">Payments</option>
+                                    <option value="scholarship">Scholarships</option>
+                                    <option value="refund">Refunds</option>
+                                </select>
                             </div>
-                            <div class="info-item">
-                                <label>Name:</label>
-                                <span>John Doe</span>
-                            </div>
-                            <div class="info-item">
-                                <label>Course:</label>
-                                <span>Diploma in Information Technology</span>
-                            </div>
-                            <div class="info-item">
-                                <label>Email:</label>
-                                <span>john.doe@student.rp.edu.sg</span>
+                            <div class="table-responsive">
+                                <table class="transactions-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="sortable" data-sort="date">Date</th>
+                                            <th class="sortable" data-sort="description">Description</th>
+                                            <th class="sortable" data-sort="type">Type</th>
+                                            <th class="sortable" data-sort="amount">Amount</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="transactions-tbody">
+                                        <!-- Transactions will be populated by JavaScript -->
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
-                    <div class="card">
-                        <h3>Settings</h3>
-                        <div class="settings">
-                            <label class="setting-item">
-                                <input type="checkbox" checked>
-                                Email notifications for payment due dates
-                            </label>
-                            <label class="setting-item">
-                                <input type="checkbox" checked>
-                                SMS notifications for scholarship updates
-                            </label>
+                </section>
+
+                <!-- Profile Tab -->
+                <section id="profile-panel" class="tab-panel" role="tabpanel" aria-labelledby="profile-tab">
+                    <h2>Profile</h2>
+                    <div class="profile-section">
+                        <div class="card">
+                            <h3>Student Information</h3>
+                            <div class="profile-info">
+                                <div class="info-item">
+                                    <label>Student ID:</label>
+                                    <span>C240XXXX</span>
+                                </div>
+                                <div class="info-item">
+                                    <label>Name:</label>
+                                    <span>John Doe</span>
+                                </div>
+                                <div class="info-item">
+                                    <label>Course:</label>
+                                    <span>Diploma in Information Technology</span>
+                                </div>
+                                <div class="info-item">
+                                    <label>Email:</label>
+                                    <span>john.doe@student.rp.edu.sg</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <h3>Settings</h3>
+                            <div class="settings">
+                                <label class="setting-item">
+                                    <input type="checkbox" checked>
+                                    Email notifications for payment due dates
+                                </label>
+                                <label class="setting-item">
+                                    <input type="checkbox" checked>
+                                    SMS notifications for scholarship updates
+                                </label>
+                            </div>
                         </div>
                     </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Modals -->
+        <div id="bursaryModal" class="modal" role="dialog" aria-labelledby="bursaryModalTitle" aria-hidden="true">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="bursaryModalTitle">Financial Need Bursary Application</h3>
+                    <button class="modal-close" onclick="closeModal('bursaryModal')"
+                        aria-label="Close modal">&times;</button>
                 </div>
-            </section>
+                <div class="modal-body">
+                    <form id="bursaryForm" class="application-form">
+                        <div class="form-group">
+                            <label for="household-income">Monthly Household Income:</label>
+                            <input type="number" id="household-income" name="householdIncome" required>
+                            <div class="error-message" id="household-income-error"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="family-size">Family Size:</label>
+                            <input type="number" id="family-size" name="familySize" min="1" required>
+                            <div class="error-message" id="family-size-error"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="supporting-documents">Supporting Documents:</label>
+                            <input type="file" id="supporting-documents" name="supportingDocs" multiple
+                                accept=".pdf,.jpg,.png">
+                        </div>
+                        <div class="form-group">
+                            <label for="additional-info">Additional Information:</label>
+                            <textarea id="additional-info" name="additionalInfo" rows="4"></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary"
+                                onclick="closeModal('bursaryModal')">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Submit Application</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-    </main>
 
-    <!-- Modals -->
-    <div id="bursaryModal" class="modal" role="dialog" aria-labelledby="bursaryModalTitle" aria-hidden="true">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="bursaryModalTitle">Financial Need Bursary Application</h3>
-                <button class="modal-close" onclick="closeModal('bursaryModal')" aria-label="Close modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="bursaryForm" class="application-form">
-                    <div class="form-group">
-                        <label for="household-income">Monthly Household Income:</label>
-                        <input type="number" id="household-income" name="householdIncome" required>
-                        <div class="error-message" id="household-income-error"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="family-size">Family Size:</label>
-                        <input type="number" id="family-size" name="familySize" min="1" required>
-                        <div class="error-message" id="family-size-error"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="supporting-documents">Supporting Documents:</label>
-                        <input type="file" id="supporting-documents" name="supportingDocs" multiple accept=".pdf,.jpg,.png">
-                    </div>
-                    <div class="form-group">
-                        <label for="additional-info">Additional Information:</label>
-                        <textarea id="additional-info" name="additionalInfo" rows="4"></textarea>
-                    </div>
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" onclick="closeModal('bursaryModal')">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Submit Application</button>
-                    </div>
-                </form>
+        <div id="excellenceModal" class="modal" role="dialog" aria-labelledby="excellenceModalTitle" aria-hidden="true">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="excellenceModalTitle">Academic Excellence Award Application</h3>
+                    <button class="modal-close" onclick="closeModal('excellenceModal')"
+                        aria-label="Close modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="excellenceForm" class="application-form">
+                        <div class="form-group">
+                            <label for="current-gpa">Current GPA:</label>
+                            <input type="number" id="current-gpa" name="currentGpa" step="0.01" min="0" max="4"
+                                required>
+                            <div class="error-message" id="current-gpa-error"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="achievements">Academic Achievements:</label>
+                            <textarea id="achievements" name="achievements" rows="4" required></textarea>
+                            <div class="error-message" id="achievements-error"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="transcripts">Official Transcripts:</label>
+                            <input type="file" id="transcripts" name="transcripts" accept=".pdf" required>
+                            <div class="error-message" id="transcripts-error"></div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary"
+                                onclick="closeModal('excellenceModal')">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Submit Application</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div id="excellenceModal" class="modal" role="dialog" aria-labelledby="excellenceModalTitle" aria-hidden="true">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="excellenceModalTitle">Academic Excellence Award Application</h3>
-                <button class="modal-close" onclick="closeModal('excellenceModal')" aria-label="Close modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="excellenceForm" class="application-form">
-                    <div class="form-group">
-                        <label for="current-gpa">Current GPA:</label>
-                        <input type="number" id="current-gpa" name="currentGpa" step="0.01" min="0" max="4" required>
-                        <div class="error-message" id="current-gpa-error"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="achievements">Academic Achievements:</label>
-                        <textarea id="achievements" name="achievements" rows="4" required></textarea>
-                        <div class="error-message" id="achievements-error"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="transcripts">Official Transcripts:</label>
-                        <input type="file" id="transcripts" name="transcripts" accept=".pdf" required>
-                        <div class="error-message" id="transcripts-error"></div>
-                    </div>
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" onclick="closeModal('excellenceModal')">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Submit Application</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+        <script src="js/app.js"></script>
+    </body>
 
-    <script src="js/app.js"></script>
-</body>
 </html>

@@ -59,7 +59,7 @@ const transactionFilter = document.getElementById('transaction-filter');
 const transactionTable = document.getElementById('transactions-tbody');
 
 // Initialize Application
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     initializeApp();
     setupEventListeners();
     loadTransactions();
@@ -70,11 +70,11 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeApp() {
     // Set up ARIA attributes
     setupAccessibility();
-    
+
     // Load saved state from localStorage
     const savedTab = localStorage.getItem('rpay_current_tab') || 'dashboard';
     switchTab(savedTab);
-    
+
     console.log('RPay Admin initialized successfully');
 }
 
@@ -86,7 +86,7 @@ function setupAccessibility() {
         link.setAttribute('aria-selected', link.classList.contains('active'));
         link.setAttribute('tabindex', link.classList.contains('active') ? '0' : '-1');
     });
-    
+
     // Add keyboard navigation support
     document.addEventListener('keydown', handleKeyboardNavigation);
 }
@@ -100,7 +100,7 @@ function setupEventListeners() {
             switchTab(tabName);
             saveRecentAction(`Viewed ${tabName} section`);
         });
-        
+
         // Keyboard support for tabs
         link.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
@@ -109,21 +109,21 @@ function setupEventListeners() {
             }
         });
     });
-    
+
     // Mobile navigation toggle
     if (navToggle) {
         navToggle.addEventListener('click', toggleMobileNav);
     }
-    
+
     // Transaction search and filter
     if (transactionSearch) {
         transactionSearch.addEventListener('input', debounce(filterTransactions, 300));
     }
-    
+
     if (transactionFilter) {
         transactionFilter.addEventListener('change', filterTransactions);
     }
-    
+
     // Table sorting
     document.querySelectorAll('.sortable').forEach(header => {
         header.addEventListener('click', () => {
@@ -131,17 +131,17 @@ function setupEventListeners() {
             sortTransactions(column);
         });
     });
-    
+
     // Form submissions
     setupFormHandlers();
-    
+
     // Modal close on outside click
     document.addEventListener('click', (e) => {
         if (e.target.classList.contains('modal')) {
             closeModal(e.target.id);
         }
     });
-    
+
     // Escape key to close modals
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
@@ -161,28 +161,28 @@ function switchTab(tabName) {
         link.setAttribute('aria-selected', 'false');
         link.setAttribute('tabindex', '-1');
     });
-    
+
     tabPanels.forEach(panel => {
         panel.classList.remove('active');
     });
-    
+
     // Add active class to selected tab and panel
     const activeLink = document.querySelector(`[data-tab="${tabName}"]`);
     const activePanel = document.getElementById(`${tabName}-panel`);
-    
+
     if (activeLink && activePanel) {
         activeLink.classList.add('active');
         activeLink.setAttribute('aria-selected', 'true');
         activeLink.setAttribute('tabindex', '0');
         activePanel.classList.add('active');
-        
+
         // Focus management for accessibility
         activeLink.focus();
-        
+
         // Save current tab
         AppState.currentTab = tabName;
         localStorage.setItem('rpay_current_tab', tabName);
-        
+
         // Announce tab change to screen readers
         announceToScreenReader(`Switched to ${tabName} section`);
     }
@@ -199,15 +199,15 @@ function toggleMobileNav() {
 // Transaction Management
 function loadTransactions() {
     if (!transactionTable) return;
-    
+
     renderTransactions(AppState.transactions);
 }
 
 function renderTransactions(transactions) {
     if (!transactionTable) return;
-    
+
     transactionTable.innerHTML = '';
-    
+
     transactions.forEach(transaction => {
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -228,28 +228,28 @@ function renderTransactions(transactions) {
 function filterTransactions() {
     const searchTerm = transactionSearch ? transactionSearch.value.toLowerCase() : '';
     const filterType = transactionFilter ? transactionFilter.value : '';
-    
+
     let filtered = AppState.transactions.filter(transaction => {
         const matchesSearch = transaction.description.toLowerCase().includes(searchTerm) ||
-                            transaction.type.toLowerCase().includes(searchTerm);
+            transaction.type.toLowerCase().includes(searchTerm);
         const matchesFilter = !filterType || transaction.type === filterType;
-        
+
         return matchesSearch && matchesFilter;
     });
-    
+
     renderTransactions(filtered);
     announceToScreenReader(`Showing ${filtered.length} transactions`);
 }
 
 function sortTransactions(column) {
     let direction = 'asc';
-    
+
     if (AppState.sortOrder.column === column && AppState.sortOrder.direction === 'asc') {
         direction = 'desc';
     }
-    
+
     AppState.sortOrder = { column, direction };
-    
+
     // Update sort indicators
     document.querySelectorAll('.sortable').forEach(header => {
         header.classList.remove('asc', 'desc');
@@ -257,12 +257,12 @@ function sortTransactions(column) {
             header.classList.add(direction);
         }
     });
-    
+
     // Sort the array
     AppState.transactions.sort((a, b) => {
         let aVal = a[column];
         let bVal = b[column];
-        
+
         // Handle different data types
         if (column === 'date') {
             aVal = new Date(aVal);
@@ -274,14 +274,14 @@ function sortTransactions(column) {
             aVal = aVal.toString().toLowerCase();
             bVal = bVal.toString().toLowerCase();
         }
-        
+
         if (direction === 'asc') {
             return aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
         } else {
             return aVal > bVal ? -1 : aVal < bVal ? 1 : 0;
         }
     });
-    
+
     filterTransactions(); // Re-render with current filters
     announceToScreenReader(`Table sorted by ${column} in ${direction}ending order`);
 }
@@ -290,38 +290,38 @@ function sortTransactions(column) {
 function openModal(modalId) {
     const modal = document.getElementById(modalId);
     if (!modal) return;
-    
+
     modal.classList.add('show');
     modal.setAttribute('aria-hidden', 'false');
-    
+
     // Focus management
     const firstFocusable = modal.querySelector('input, textarea, select, button');
     if (firstFocusable) {
         setTimeout(() => firstFocusable.focus(), 100);
     }
-    
+
     // Prevent body scroll
     document.body.style.overflow = 'hidden';
-    
+
     saveRecentAction(`Opened ${modalId.replace('Modal', '')} application form`);
 }
 
 function closeModal(modalId) {
     const modal = document.getElementById(modalId);
     if (!modal) return;
-    
+
     modal.classList.remove('show');
     modal.setAttribute('aria-hidden', 'true');
-    
+
     // Restore body scroll
     document.body.style.overflow = '';
-    
+
     // Clear form errors
     const form = modal.querySelector('form');
     if (form) {
         clearFormErrors(form);
     }
-    
+
     // Return focus to trigger element
     const triggerButton = document.querySelector(`[onclick*="${modalId}"]`);
     if (triggerButton) {
@@ -336,7 +336,7 @@ function setupFormHandlers() {
     if (bursaryForm) {
         bursaryForm.addEventListener('submit', handleBursarySubmission);
     }
-    
+
     // Excellence form
     const excellenceForm = document.getElementById('excellenceForm');
     if (excellenceForm) {
@@ -346,15 +346,15 @@ function setupFormHandlers() {
 
 function handleBursarySubmission(e) {
     e.preventDefault();
-    
+
     const form = e.target;
     const formData = new FormData(form);
-    
+
     // Validate form
     if (!validateBursaryForm(form, formData)) {
         return;
     }
-    
+
     // Simulate form submission
     submitApplication('bursary', formData)
         .then(() => {
@@ -371,15 +371,15 @@ function handleBursarySubmission(e) {
 
 function handleExcellenceSubmission(e) {
     e.preventDefault();
-    
+
     const form = e.target;
     const formData = new FormData(form);
-    
+
     // Validate form
     if (!validateExcellenceForm(form, formData)) {
         return;
     }
-    
+
     // Simulate form submission
     submitApplication('excellence', formData)
         .then(() => {
@@ -398,46 +398,46 @@ function handleExcellenceSubmission(e) {
 function validateBursaryForm(form, formData) {
     clearFormErrors(form);
     let isValid = true;
-    
+
     const householdIncome = formData.get('householdIncome');
     const familySize = formData.get('familySize');
-    
+
     if (!householdIncome || parseFloat(householdIncome) < 0) {
         showFieldError('household-income', 'Please enter a valid household income');
         isValid = false;
     }
-    
+
     if (!familySize || parseInt(familySize) < 1) {
         showFieldError('family-size', 'Please enter a valid family size');
         isValid = false;
     }
-    
+
     return isValid;
 }
 
 function validateExcellenceForm(form, formData) {
     clearFormErrors(form);
     let isValid = true;
-    
+
     const gpa = formData.get('currentGpa');
     const achievements = formData.get('achievements');
     const transcripts = formData.get('transcripts');
-    
+
     if (!gpa || parseFloat(gpa) < 0 || parseFloat(gpa) > 4) {
         showFieldError('current-gpa', 'Please enter a valid GPA between 0 and 4');
         isValid = false;
     }
-    
+
     if (!achievements || achievements.trim().length < 10) {
         showFieldError('achievements', 'Please provide detailed achievements (minimum 10 characters)');
         isValid = false;
     }
-    
+
     if (!transcripts || transcripts.size === 0) {
         showFieldError('transcripts', 'Please upload your official transcripts');
         isValid = false;
     }
-    
+
     return isValid;
 }
 
@@ -447,7 +447,7 @@ function showFieldError(fieldId, message) {
         errorElement.textContent = message;
         errorElement.classList.add('show');
     }
-    
+
     const field = document.getElementById(fieldId);
     if (field) {
         field.style.borderColor = 'var(--danger-red)';
@@ -462,7 +462,7 @@ function clearFormErrors(form) {
         element.classList.remove('show');
         element.textContent = '';
     });
-    
+
     const fields = form.querySelectorAll('input, textarea, select');
     fields.forEach(field => {
         field.style.borderColor = '';
@@ -490,11 +490,11 @@ async function submitApplication(type, formData) {
 function downloadReceipt(transactionId) {
     const transaction = AppState.transactions.find(t => t.id === transactionId);
     if (!transaction) return;
-    
+
     // Simulate receipt download
     showSuccessMessage(`Receipt for "${transaction.description}" is being downloaded...`);
     saveRecentAction(`Downloaded receipt for ${transaction.description}`);
-    
+
     // In a real app, this would trigger an actual download
     console.log(`Downloading receipt for transaction ${transactionId}`);
 }
@@ -513,7 +513,7 @@ function formatCurrency(amount) {
         style: 'currency',
         currency: 'SGD'
     }).format(Math.abs(amount));
-    
+
     return amount < 0 ? `-${formatted}` : formatted;
 }
 
@@ -550,7 +550,7 @@ function showNotification(message, type = 'info') {
         <span>${message}</span>
         <button class="notification-close" onclick="this.parentElement.remove()" aria-label="Close notification">&times;</button>
     `;
-    
+
     // Add styles if not already present
     if (!document.querySelector('#notification-styles')) {
         const styles = document.createElement('style');
@@ -592,16 +592,16 @@ function showNotification(message, type = 'info') {
         `;
         document.head.appendChild(styles);
     }
-    
+
     document.body.appendChild(notification);
-    
+
     // Auto-remove after 5 seconds
     setTimeout(() => {
         if (notification.parentElement) {
             notification.remove();
         }
     }, 5000);
-    
+
     // Announce to screen readers
     announceToScreenReader(message);
 }
@@ -610,10 +610,10 @@ function showNotification(message, type = 'info') {
 function saveRecentAction(action) {
     const timestamp = new Date().toISOString();
     AppState.recentActions.unshift({ action, timestamp });
-    
+
     // Keep only last 10 actions
     AppState.recentActions = AppState.recentActions.slice(0, 10);
-    
+
     localStorage.setItem('rpay_recent_actions', JSON.stringify(AppState.recentActions));
 }
 
@@ -629,9 +629,9 @@ function announceToScreenReader(message) {
     announcement.setAttribute('aria-atomic', 'true');
     announcement.className = 'sr-only';
     announcement.textContent = message;
-    
+
     document.body.appendChild(announcement);
-    
+
     setTimeout(() => {
         document.body.removeChild(announcement);
     }, 1000);
@@ -642,7 +642,7 @@ function handleKeyboardNavigation(e) {
     if (e.target.classList.contains('nav-link')) {
         const tabs = Array.from(navLinks);
         const currentIndex = tabs.indexOf(e.target);
-        
+
         if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
             e.preventDefault();
             const prevIndex = currentIndex > 0 ? currentIndex - 1 : tabs.length - 1;
