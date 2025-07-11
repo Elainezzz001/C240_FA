@@ -4,62 +4,102 @@ A secure, all-in-one RP student financial management system for tracking school 
 
 ## 🎯 Project Overview
 
-RPay helps Republic Polytechnic students stay on top of their financial status with live dashboards, editable profiles, integrated bursary and aid applications, and downloadable statements, ensuring full control and transparency over student finance.
+**One-Line Pitch:** A secure, all-in-one RP student financial management system for tracking school fees, scholarships, claims, transactions, and personal profile settings.
 
-## 🎨 Design System
+**Why It Matters:** RPay helps Republic Polytechnic students stay on top of their financial status. With live dashboards, editable profiles, integrated bursary and aid applications, and downloadable statements, the platform ensures full control and transparency over student finance.
+
+## 🎨 Design Features
 
 ### Color Palette
-- **Republic Green**: `#1E8449` - Primary brand color
-- **RP Red**: `#E53935` - Accent and alert color  
-- **Deep Navy**: `#1A237E` - Headers and important text
-- **White**: `#FFFFFF` - Background and clean surfaces
-- **Light Gray**: `#F7F9FC` - Page background and subtle elements
+- **Republic Green:** #1E8449
+- **RP Red:** #E53935  
+- **Deep Navy:** #1A237E
+- **White:** #FFFFFF
+- **Light Gray:** #F7F9FC
 
-### UI Components
+### UX/UI Design Principles
 - Card-based dashboard for fee summary, aid awarded, pending claims
 - Floating chat bubble at bottom-right for live support or chatbot interaction
 - Editable student profile page with fields like name, student ID, course, email
+- Scholarship section includes available scholarships + applicable bursary programs
 - Clear buttons for actions like "Submit Claim", "Apply Now", "Download Statement"
 - Toast notifications for user actions like form submission or file download
-- Mobile-first, accessible navigation with screen reader support
+- Mobile-first, accessible navigation with screen reader support and keyboard accessibility
 
-## ⚡ Features
+## ⚙️ Features
+
+### Navigation System
+- SPA-style tabbed navigation (Dashboard, School Fees, Claims, Scholarships, Transactions, Profile)
+- Show/hide sections dynamically without reloading
+- Mobile-responsive navigation with hamburger menu
 
 ### Dashboard
-- **Financial Overview**: Quick summary cards showing fees, claims, scholarships, and balance
-- **Recent Transactions**: Latest financial activity with color-coded income/expense
-- **Quick Actions**: Fast access to common tasks like submitting claims
+- Financial summary cards showing outstanding fees, aid awarded, and pending claims
+- Recent activity feed with color-coded income/expense transactions
+- Quick action buttons for common tasks
 
 ### School Fees Management
-- **Fee Breakdown**: Detailed breakdown of tuition, services, and other fees
-- **Payment History**: Complete record of all fee payments
-- **Payment Status**: Real-time status of current semester fees
+- Detailed fee breakdown (tuition, services, technology fees)
+- Payment history tracking
+- Downloadable PDF statements using jsPDF
 
 ### Claims System
-- **Submit Claims**: Easy form for medical, transportation, and equipment claims
-- **Track Status**: Monitor claim progress (pending, approved, rejected)
-- **Upload Receipts**: File attachment support for claim documentation
+- Submit new claims with form validation
+- Upload receipt functionality
+- Track pending and approved claims
+- Support for multiple claim types (medical, transport, textbook, equipment)
 
 ### Scholarships & Bursaries
-- **Active Awards**: View current scholarships and their values
-- **Available Opportunities**: Browse and apply for new financial aid
-- **Application Tracking**: Monitor scholarship application status
+- Browse available scholarships and bursaries
+- Track application status
+- Apply for new opportunities
 
 ### Transaction History
-- **Complete Record**: All financial transactions in chronological order
-- **Filter Options**: Filter by income, expenses, or view all
-- **Export Capability**: Download transaction statements
+- Complete transaction listing with filtering
+- Filter by type (income/expense) and date range
+- Color-coded transaction types
 
 ### Profile Management
-- **Editable Information**: Update personal details, contact info, and address
-- **Student Details**: View student ID, course information, and academic details
-- **Security**: Secure profile updates with validation
+- Editable student information (name, ID, course, email, phone)
+- Account settings for notifications
+- Modal-based editing system
 
-### Interactive Features
-- **Live Chat**: Floating chat bubble with financial support bot
-- **PDF Generation**: Download comprehensive financial statements
-- **Form Validation**: Real-time validation for all user inputs
-- **Local Storage**: Persist data across browser sessions
+### Chat Support
+- Floating chat bubble for easy access
+- Interactive chatbot with contextual responses
+- Support for common queries about fees, scholarships, and claims
+
+## 🛠️ Technical Implementation
+
+### Technologies Used
+- **Frontend:** HTML5, CSS3 (Custom Grid/Flexbox), Vanilla JavaScript
+- **PDF Generation:** jsPDF library
+- **Storage:** LocalStorage for prototype data persistence
+- **Accessibility:** ARIA labels, keyboard navigation, screen reader support
+
+### File Structure
+```
+├── index.html              # Main HTML structure
+├── css/
+│   └── styles.css          # Complete responsive styling
+├── js/
+│   └── app.js              # Full application logic
+├── logo/
+│   └── RP Logo.png         # Republic Polytechnic logo
+├── .vscode/
+│   └── settings.json       # VS Code configuration
+├── .gitignore              # Git ignore rules
+└── README.md               # This documentation
+```
+
+### JavaScript Architecture
+- **Class-based architecture** with RPay main class
+- **Event-driven programming** for user interactions
+- **Modular design** with separate methods for different features
+- **Data persistence** using localStorage
+- **Form validation** with user feedback
+- **Toast notification system** for user actions
+- **Responsive design** with mobile-first approach
 
 ## 🚀 Getting Started
 
@@ -68,124 +108,86 @@ RPay helps Republic Polytechnic students stay on top of their financial status w
 - VS Code with Live Server extension (recommended)
 
 ### Installation
+1. Clone or download the repository
+2. Open the project folder in VS Code
+3. Install the Live Server extension if not already installed
+4. Right-click on `index.html` and select "Open with Live Server"
+5. The application will open in your default browser
 
-1. **Clone the repository:**
-   ```bash
-   git clone <your-repo-url>
-   cd "Financial Admin Chatbot"
-   ```
+### Usage
+1. **Dashboard:** View financial summary and recent activity
+2. **School Fees:** Check fee breakdown and download statements
+3. **Claims:** Submit new claims and track existing ones
+4. **Scholarships:** Browse and apply for financial aid
+5. **Transactions:** Filter and view transaction history
+6. **Profile:** Edit personal information and settings
+7. **Chat:** Use the floating chat bubble for support
 
-2. **Open in VS Code:**
-   ```bash
-   code .
-   ```
+## 🔧 Development
 
-3. **Start Live Server:**
-   - Install the Live Server extension in VS Code
-   - Right-click on `index.html`
-   - Select "Open with Live Server"
-   - The site will open at `http://localhost:3000`
+### Running Locally
+```bash
+# Using VS Code Live Server (recommended)
+1. Open project in VS Code
+2. Right-click index.html
+3. Select "Open with Live Server"
 
-### Project Structure
-```
-RPay Financial Admin/
-├── index.html              # Main HTML file with all page sections
-├── css/
-│   └── styles.css          # Comprehensive styling with RP color scheme
-├── js/
-│   └── app.js              # JavaScript functionality and interactivity
-├── logo/
-│   └── RP Logo.png         # Republic Polytechnic logo
-├── .vscode/
-│   └── settings.json       # VS Code configuration for Live Server
-└── .gitignore             # Git ignore patterns
+# Alternative: Using Python (if available)
+python -m http.server 8000
+
+# Alternative: Using Node.js (if available)
+npx http-server
 ```
 
-## 🔧 Technical Implementation
+### Git Setup
+```bash
+git init
+git add .
+git commit -m "Initial commit – Full RP Student Financial Admin System"
+```
 
-### JavaScript Features
-- **SPA Navigation**: Single-page application with tabbed navigation
-- **Dynamic Content**: Show/hide sections without page reloads
-- **Form Validation**: Client-side validation for claims, applications, and profile updates
-- **Modal System**: Edit profile with overlay modal
-- **PDF Generation**: Uses jsPDF library for statement downloads
-- **Local Storage**: Data persistence for prototype demonstration
-- **Chat System**: Interactive floating chat with bot responses
+## 📱 Responsive Design
 
-### Responsive Design
-- **Mobile-First**: Optimized for mobile devices with responsive breakpoints
-- **Flexible Grid**: CSS Grid and Flexbox for adaptive layouts
-- **Touch-Friendly**: Large tap targets and intuitive mobile navigation
-- **Accessibility**: Keyboard navigation, screen reader support, high contrast support
+The application is fully responsive and works on:
+- **Desktop:** Full-featured experience with multi-column layouts
+- **Tablet:** Optimized card layouts and touch-friendly interactions
+- **Mobile:** Single-column layout with mobile navigation menu
 
-### Browser Compatibility
-- Chrome 90+
-- Firefox 88+
-- Safari 14+
-- Edge 90+
+## ♿ Accessibility Features
 
-## 📱 Usage Guide
+- **Keyboard Navigation:** Full keyboard support for all interactions
+- **Screen Reader Support:** Proper ARIA labels and semantic HTML
+- **Focus Management:** Clear focus indicators and logical tab order
+- **High Contrast Support:** Respects user's contrast preferences
+- **Reduced Motion:** Honors user's motion preferences
 
-### Navigation
-- Use the top navigation bar to switch between different sections
-- Keyboard shortcuts: `Ctrl + 1-6` for quick tab switching
-- Click the RP logo to return to dashboard
+## 🔒 Security Considerations
 
-### Submitting Claims
-1. Navigate to the "Claims" tab
-2. Fill out the claim form with type, amount, and description
-3. Upload a receipt (PDF, JPG, PNG supported)
-4. Click "Submit Claim" to process
+- Client-side data storage (localStorage) for prototype
+- Form validation to prevent invalid submissions
+- No sensitive data transmitted (prototype environment)
+- XSS prevention through proper DOM manipulation
 
-### Managing Profile
-1. Go to the "Profile" tab
-2. Click "Edit Profile" button
-3. Update your information in the modal
-4. Save changes to update your profile
+## 🎯 Future Enhancements
 
-### Using Chat Support
-1. Click the floating chat bubble (bottom-right)
-2. Type your financial questions
-3. Get instant responses about fees, claims, scholarships, and balances
-4. Chat provides contextual help and contact information
-
-### Downloading Statements
-1. Click "Download Statement" on the dashboard
-2. A PDF will be generated with your financial summary
-3. Includes recent transactions, account summary, and student details
-
-## 🔒 Security & Privacy
-
-- All data is stored locally in your browser
-- No sensitive information is transmitted to external servers
-- Profile updates require form validation
-- Secure file upload handling for claim receipts
-
-## 🛠 Development
-
-### Code Structure
-- **Modular CSS**: Organized by component with CSS custom properties
-- **ES6 JavaScript**: Modern JavaScript with proper error handling
-- **Semantic HTML**: Accessible markup with proper ARIA labels
-- **Progressive Enhancement**: Works without JavaScript for basic functionality
-
-### Customization
-- Update color scheme in CSS custom properties (`:root`)
-- Modify navigation tabs in the HTML nav section
-- Add new transaction types in the JavaScript data arrays
-- Extend chat bot responses in the `getBotResponse()` function
-
-## 📧 Support
-
-For technical support or questions about the RPay Financial Admin system:
-- **Email**: finance@rp.edu.sg
-- **Phone**: +65 6510 3000
-- **In-App Chat**: Use the floating chat bubble for instant help
+- Backend integration with actual RP systems
+- Real-time notifications
+- Payment processing integration
+- Advanced reporting and analytics
+- Mobile app development
+- Multi-language support
 
 ## 📄 License
 
-This project is developed for Republic Polytechnic students and is intended for educational and administrative use.
+This project is developed for Republic Polytechnic and follows institutional guidelines.
+
+## 👥 Support
+
+For technical support or questions:
+- Email: support@rp.edu.sg
+- Phone: +65 6510 3000
+- Chat: Use the in-app chat feature
 
 ---
 
-**RPay Financial Admin** - Empowering RP students with transparent, accessible financial management.
+**Built with ❤️ for Republic Polytechnic Students**

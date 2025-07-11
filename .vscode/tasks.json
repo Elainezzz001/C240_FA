@@ -1,0 +1,16 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Start Live Server",
+			"type": "shell",
+			"command": "echo",
+			"args": [
+				"Open index.html with Live Server extension in VS Code"
+			],
+			"group": "build",
+			"isBackground": false,
+			"problemMatcher": []
+		}
+	]
+}

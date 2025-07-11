@@ -1,617 +1,604 @@
-// Global Variables
-let currentTab = 'dashboard';
-let transactions = [];
-let claims = [];
-let studentProfile = {
-    name: 'John Doe',
-    id: 'S1234567A',
-    course: 'Diploma in Information Technology',
-    email: 'john.doe@mail.rp.edu.sg',
-    phone: '+65 9123 4567',
-    address: '123 Main Street, Singapore 123456'
-};
+// RPay Financial Admin - JavaScript Functionality
 
-// Initialize app when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    initializeApp();
-    loadSampleData();
-    renderRecentTransactions();
-    renderAllTransactions();
-    renderClaims();
-    setupEventListeners();
-});
+class RPay {
+    constructor() {
+        this.currentTab = 'dashboard';
+        this.studentData = this.loadStudentData();
+        this.transactions = this.generateSampleTransactions();
+        this.init();
+    }
 
-// Initialize the application
-function initializeApp() {
-    // Load saved data from localStorage
-    loadFromStorage();
-    
-    // Set up navigation
-    setupNavigation();
-    
-    // Initialize chat functionality
-    initializeChat();
-    
-    // Show dashboard by default
-    showTab('dashboard');
-}
+    init() {
+        this.setupEventListeners();
+        this.setupNavigation();
+        this.setupChat();
+        this.setupModals();
+        this.setupForms();
+        this.loadTransactions();
+        this.loadStudentProfile();
+    }
 
-// Setup navigation event listeners
-function setupNavigation() {
-    const navItems = document.querySelectorAll('.nav-item');
-    navItems.forEach(item => {
-        item.addEventListener('click', function() {
-            const tabName = this.dataset.tab;
-            switchTab(tabName);
-        });
-    });
-}
+    // Data Management
+    loadStudentData() {
+        const defaultData = {
+            name: 'John Doe',
+            studentId: 'S12345678',
+            course: 'Diploma in Information Technology',
+            email: 'john.doe@student.rp.edu.sg',
+            phone: '+65 9123 4567',
+            settings: {
+                emailNotifications: true,
+                smsAlerts: false,
+                paymentReminders: true
+            }
+        };
+        
+        const saved = localStorage.getItem('rpay_student_data');
+        return saved ? { ...defaultData, ...JSON.parse(saved) } : defaultData;
+    }
 
-// Switch between tabs
-function switchTab(tabName) {
-    // Update active nav item
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.remove('active');
-        if (item.dataset.tab === tabName) {
-            item.classList.add('active');
+    saveStudentData() {
+        localStorage.setItem('rpay_student_data', JSON.stringify(this.studentData));
+    }
+
+    generateSampleTransactions() {
+        const transactions = [
+            {
+                id: 1,
+                type: 'income',
+                description: 'Bursary Payment',
+                amount: 500.00,
+                date: new Date('2025-07-09'),
+                category: 'Financial Aid'
+            },
+            {
+                id: 2,
+                type: 'expense',
+                description: 'Tuition Fee Payment',
+                amount: 1225.00,
+                date: new Date('2025-07-04'),
+                category: 'School Fees'
+            },
+            {
+                id: 3,
+                type: 'income',
+                description: 'Merit Scholarship',
+                amount: 750.00,
+                date: new Date('2025-06-28'),
+                category: 'Scholarship'
+            },
+            {
+                id: 4,
+                type: 'expense',
+                description: 'Student Services Fee',
+                amount: 150.00,
+                date: new Date('2025-06-15'),
+                category: 'School Fees'
+            },
+            {
+                id: 5,
+                type: 'income',
+                description: 'Transport Allowance',
+                amount: 85.00,
+                date: new Date('2025-06-10'),
+                category: 'Claims'
+            }
+        ];
+        
+        return transactions.sort((a, b) => b.date - a.date);
+    }
+
+    // Event Listeners Setup
+    setupEventListeners() {
+        // Navigation toggle for mobile
+        const navToggle = document.querySelector('.nav-toggle');
+        const navList = document.querySelector('.nav-list');
+        
+        if (navToggle && navList) {
+            navToggle.addEventListener('click', () => {
+                navList.classList.toggle('active');
+            });
         }
-    });
-    
-    // Show corresponding tab content
-    showTab(tabName);
-    currentTab = tabName;
-}
 
-// Show specific tab content
-function showTab(tabName) {
-    // Hide all tab contents
-    document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.remove('active');
-    });
-    
-    // Show selected tab
-    const targetTab = document.getElementById(tabName);
-    if (targetTab) {
-        targetTab.classList.add('active');
-    }
-}
+        // Download statement
+        const downloadBtn = document.getElementById('downloadStatement');
+        if (downloadBtn) {
+            downloadBtn.addEventListener('click', () => this.downloadStatement());
+        }
 
-// Setup all event listeners
-function setupEventListeners() {
-    // Claim form submission
-    const claimForm = document.getElementById('claimForm');
-    if (claimForm) {
-        claimForm.addEventListener('submit', handleClaimSubmission);
+        // Settings save
+        const saveSettingsBtn = document.getElementById('saveSettings');
+        if (saveSettingsBtn) {
+            saveSettingsBtn.addEventListener('click', () => this.saveSettings());
+        }
+
+        // Transaction filters
+        const applyFiltersBtn = document.getElementById('applyFilters');
+        if (applyFiltersBtn) {
+            applyFiltersBtn.addEventListener('click', () => this.applyTransactionFilters());
+        }
     }
-    
-    // Profile form submission
-    const profileForm = document.getElementById('profileForm');
-    if (profileForm) {
-        profileForm.addEventListener('submit', handleProfileUpdate);
+
+    // Navigation System
+    setupNavigation() {
+        const navBtns = document.querySelectorAll('.nav-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        navBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetTab = btn.getAttribute('data-tab');
+                
+                // Update active nav button
+                navBtns.forEach(b => {
+                    b.classList.remove('active');
+                    b.setAttribute('aria-selected', 'false');
+                });
+                btn.classList.add('active');
+                btn.setAttribute('aria-selected', 'true');
+
+                // Update active tab content
+                tabContents.forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                const targetContent = document.getElementById(targetTab);
+                if (targetContent) {
+                    targetContent.classList.add('active');
+                    this.currentTab = targetTab;
+                }
+
+                // Close mobile menu
+                const navList = document.querySelector('.nav-list');
+                if (navList) {
+                    navList.classList.remove('active');
+                }
+            });
+        });
     }
-    
-    // Transaction filter
-    const transactionFilter = document.getElementById('transactionFilter');
-    if (transactionFilter) {
-        transactionFilter.addEventListener('change', filterTransactions);
+
+    // Chat System
+    setupChat() {
+        const chatBubble = document.getElementById('chatBubble');
+        const chatWindow = document.getElementById('chatWindow');
+        const chatClose = document.getElementById('chatClose');
+        const chatSend = document.getElementById('chatSend');
+        const chatInput = document.getElementById('chatInput');
+
+        if (chatBubble && chatWindow) {
+            chatBubble.addEventListener('click', () => {
+                chatWindow.classList.add('active');
+                chatWindow.setAttribute('aria-hidden', 'false');
+                chatInput?.focus();
+            });
+
+            chatClose?.addEventListener('click', () => {
+                chatWindow.classList.remove('active');
+                chatWindow.setAttribute('aria-hidden', 'true');
+            });
+
+            const sendMessage = () => {
+                const message = chatInput?.value.trim();
+                if (message) {
+                    this.addChatMessage(message, 'user');
+                    chatInput.value = '';
+                    
+                    // Simulate bot response
+                    setTimeout(() => {
+                        this.handleBotResponse(message);
+                    }, 1000);
+                }
+            };
+
+            chatSend?.addEventListener('click', sendMessage);
+            chatInput?.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+        }
     }
-    
-    // Chat functionality
-    const sendButton = document.getElementById('sendMessage');
-    const chatInput = document.getElementById('chatInputField');
-    
-    if (sendButton) {
-        sendButton.addEventListener('click', sendChatMessage);
+
+    addChatMessage(message, sender) {
+        const chatMessages = document.getElementById('chatMessages');
+        if (!chatMessages) return;
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}-message`;
+        messageDiv.innerHTML = `<p>${message}</p>`;
+        
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
     }
-    
-    if (chatInput) {
-        chatInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendChatMessage();
+
+    handleBotResponse(userMessage) {
+        const responses = {
+            'fees': 'Your current outstanding fees are $2,450.00. You can view the breakdown in the School Fees section.',
+            'scholarship': 'You have 2 scholarship applications under review. Check the Scholarships section for details.',
+            'claim': 'You have 3 pending claims. Visit the Claims section to track their status.',
+            'payment': 'You can make payments through the School Fees section or contact our finance office.',
+            'help': 'I can help you with fees, scholarships, claims, payments, and account information. What would you like to know?',
+            'default': 'Thank you for your message. For specific inquiries, please contact our support team at support@rp.edu.sg or call +65 6510 3000.'
+        };
+
+        const lowerMessage = userMessage.toLowerCase();
+        let response = responses.default;
+
+        for (const [key, value] of Object.entries(responses)) {
+            if (lowerMessage.includes(key)) {
+                response = value;
+                break;
+            }
+        }
+
+        this.addChatMessage(response, 'bot');
+    }
+
+    // Modal System
+    setupModals() {
+        const editBtns = document.querySelectorAll('.edit-btn');
+        const modal = document.getElementById('editModal');
+        const modalClose = document.getElementById('modalClose');
+        const cancelEdit = document.getElementById('cancelEdit');
+        const editForm = document.getElementById('editForm');
+
+        editBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const field = btn.getAttribute('data-field');
+                this.openEditModal(field);
+            });
+        });
+
+        [modalClose, cancelEdit].forEach(btn => {
+            btn?.addEventListener('click', () => {
+                this.closeModal();
+            });
+        });
+
+        modal?.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                this.closeModal();
+            }
+        });
+
+        editForm?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.saveProfileEdit();
+        });
+    }
+
+    openEditModal(field) {
+        const modal = document.getElementById('editModal');
+        const editLabel = document.getElementById('editLabel');
+        const editInput = document.getElementById('editInput');
+        
+        if (!modal || !editLabel || !editInput) return;
+
+        const fieldLabels = {
+            name: 'Full Name',
+            studentId: 'Student ID',
+            course: 'Course',
+            email: 'Email Address',
+            phone: 'Phone Number'
+        };
+
+        editLabel.textContent = fieldLabels[field] || field;
+        editInput.value = this.studentData[field] || '';
+        editInput.setAttribute('data-field', field);
+        
+        modal.classList.add('active');
+        modal.setAttribute('aria-hidden', 'false');
+        editInput.focus();
+    }
+
+    closeModal() {
+        const modal = document.getElementById('editModal');
+        if (modal) {
+            modal.classList.remove('active');
+            modal.setAttribute('aria-hidden', 'true');
+        }
+    }
+
+    saveProfileEdit() {
+        const editInput = document.getElementById('editInput');
+        if (!editInput) return;
+
+        const field = editInput.getAttribute('data-field');
+        const value = editInput.value.trim();
+
+        if (field && value) {
+            this.studentData[field] = value;
+            this.saveStudentData();
+            this.loadStudentProfile();
+            this.closeModal();
+            this.showToast('Profile updated successfully!', 'success');
+        }
+    }
+
+    // Forms Setup
+    setupForms() {
+        const claimForm = document.getElementById('claimForm');
+        
+        claimForm?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.submitClaim();
+        });
+    }
+
+    submitClaim() {
+        const formData = {
+            type: document.getElementById('claimType')?.value,
+            amount: document.getElementById('claimAmount')?.value,
+            description: document.getElementById('claimDescription')?.value,
+            receipt: document.getElementById('claimReceipt')?.files[0]
+        };
+
+        if (this.validateClaimForm(formData)) {
+            // Simulate submission
+            setTimeout(() => {
+                this.showToast('Claim submitted successfully! You will receive an email confirmation.', 'success');
+                document.getElementById('claimForm')?.reset();
+            }, 1000);
+        }
+    }
+
+    validateClaimForm(data) {
+        if (!data.type) {
+            this.showToast('Please select a claim type.', 'error');
+            return false;
+        }
+        if (!data.amount || parseFloat(data.amount) <= 0) {
+            this.showToast('Please enter a valid amount.', 'error');
+            return false;
+        }
+        if (!data.description) {
+            this.showToast('Please provide a description.', 'error');
+            return false;
+        }
+        if (!data.receipt) {
+            this.showToast('Please upload a receipt.', 'error');
+            return false;
+        }
+        return true;
+    }
+
+    // Student Profile Management
+    loadStudentProfile() {
+        const fields = ['name', 'studentId', 'course', 'email', 'phone'];
+        
+        fields.forEach(field => {
+            const element = document.getElementById(`display${field.charAt(0).toUpperCase() + field.slice(1)}`);
+            if (element) {
+                element.textContent = this.studentData[field] || '';
+            }
+        });
+
+        // Load settings
+        Object.entries(this.studentData.settings || {}).forEach(([key, value]) => {
+            const checkbox = document.getElementById(key);
+            if (checkbox) {
+                checkbox.checked = value;
             }
         });
     }
-}
 
-// Load sample data
-function loadSampleData() {
-    transactions = [
-        {
-            id: 1,
-            type: 'income',
-            description: 'Scholarship Payment',
-            amount: 2000.00,
-            date: '2025-07-01',
-            category: 'scholarship'
-        },
-        {
-            id: 2,
-            type: 'expense',
-            description: 'School Fees Payment',
-            amount: 7700.00,
-            date: '2025-06-15',
-            category: 'fees'
-        },
-        {
-            id: 3,
-            type: 'income',
-            description: 'Bursary Award',
-            amount: 500.00,
-            date: '2025-06-10',
-            category: 'bursary'
-        },
-        {
-            id: 4,
-            type: 'expense',
-            description: 'Textbook Purchase',
-            amount: 150.00,
-            date: '2025-06-05',
-            category: 'books'
-        },
-        {
-            id: 5,
-            type: 'expense',
-            description: 'Transportation',
-            amount: 50.00,
-            date: '2025-07-08',
-            category: 'transport'
+    saveSettings() {
+        const settings = {
+            emailNotifications: document.getElementById('emailNotifications')?.checked || false,
+            smsAlerts: document.getElementById('smsAlerts')?.checked || false,
+            paymentReminders: document.getElementById('paymentReminders')?.checked || false
+        };
+
+        this.studentData.settings = settings;
+        this.saveStudentData();
+        this.showToast('Settings saved successfully!', 'success');
+    }
+
+    // Transaction Management
+    loadTransactions() {
+        const container = document.getElementById('transactionHistory');
+        if (!container) return;
+
+        container.innerHTML = '';
+        
+        this.transactions.forEach(transaction => {
+            const transactionElement = this.createTransactionElement(transaction);
+            container.appendChild(transactionElement);
+        });
+    }
+
+    createTransactionElement(transaction) {
+        const div = document.createElement('div');
+        div.className = 'activity-item';
+        
+        const typeClass = transaction.type === 'income' ? 'income' : 'expense';
+        const typeSymbol = transaction.type === 'income' ? '+' : '-';
+        const amountPrefix = transaction.type === 'income' ? '+' : '-';
+        
+        div.innerHTML = `
+            <span class="activity-type ${typeClass}">${typeSymbol}</span>
+            <div class="activity-details">
+                <p>${transaction.description}</p>
+                <small>${transaction.date.toLocaleDateString()}</small>
+            </div>
+            <span class="activity-amount">${amountPrefix}$${transaction.amount.toFixed(2)}</span>
+        `;
+        
+        return div;
+    }
+
+    applyTransactionFilters() {
+        const typeFilter = document.getElementById('transactionType')?.value;
+        const dateFrom = document.getElementById('dateFrom')?.value;
+        const dateTo = document.getElementById('dateTo')?.value;
+
+        let filteredTransactions = [...this.transactions];
+
+        if (typeFilter && typeFilter !== 'all') {
+            filteredTransactions = filteredTransactions.filter(t => t.type === typeFilter);
         }
-    ];
-    
-    claims = [
-        {
-            id: 1,
-            type: 'Medical Expenses',
-            amount: 120.00,
-            description: 'Doctor consultation and medication',
-            status: 'pending',
-            date: '2025-07-05'
-        },
-        {
-            id: 2,
-            type: 'Transportation',
-            amount: 230.00,
-            description: 'Monthly transport allowance',
-            status: 'approved',
-            date: '2025-06-20'
-        },
-        {
-            id: 3,
-            type: 'Equipment/Books',
-            amount: 85.00,
-            description: 'Programming textbooks',
-            status: 'rejected',
-            date: '2025-06-15'
+
+        if (dateFrom) {
+            const fromDate = new Date(dateFrom);
+            filteredTransactions = filteredTransactions.filter(t => t.date >= fromDate);
         }
-    ];
-    
-    // Save to localStorage
-    saveToStorage();
-}
 
-// Render recent transactions on dashboard
-function renderRecentTransactions() {
-    const container = document.getElementById('recentTransactions');
-    if (!container) return;
-    
-    const recentTransactions = transactions
-        .sort((a, b) => new Date(b.date) - new Date(a.date))
-        .slice(0, 5);
-    
-    container.innerHTML = recentTransactions.map(transaction => `
-        <div class="transaction-item">
-            <div class="transaction-info">
-                <div class="transaction-icon ${transaction.type}">
-                    <i class="fas ${transaction.type === 'income' ? 'fa-arrow-up' : 'fa-arrow-down'}"></i>
-                </div>
-                <div class="transaction-details">
-                    <h4>${transaction.description}</h4>
-                    <p>${formatDate(transaction.date)}</p>
-                </div>
-            </div>
-            <div class="transaction-amount ${transaction.type}">
-                ${transaction.type === 'income' ? '+' : '-'}$${transaction.amount.toFixed(2)}
-            </div>
-        </div>
-    `).join('');
-}
+        if (dateTo) {
+            const toDate = new Date(dateTo);
+            filteredTransactions = filteredTransactions.filter(t => t.date <= toDate);
+        }
 
-// Render all transactions
-function renderAllTransactions() {
-    const container = document.getElementById('allTransactions');
-    if (!container) return;
-    
-    const sortedTransactions = transactions
-        .sort((a, b) => new Date(b.date) - new Date(a.date));
-    
-    container.innerHTML = sortedTransactions.map(transaction => `
-        <div class="transaction-item">
-            <div class="transaction-info">
-                <div class="transaction-icon ${transaction.type}">
-                    <i class="fas ${transaction.type === 'income' ? 'fa-arrow-up' : 'fa-arrow-down'}"></i>
-                </div>
-                <div class="transaction-details">
-                    <h4>${transaction.description}</h4>
-                    <p>${formatDate(transaction.date)} • ${transaction.category}</p>
-                </div>
-            </div>
-            <div class="transaction-amount ${transaction.type}">
-                ${transaction.type === 'income' ? '+' : '-'}$${transaction.amount.toFixed(2)}
-            </div>
-        </div>
-    `).join('');
-}
+        const container = document.getElementById('transactionHistory');
+        if (container) {
+            container.innerHTML = '';
+            filteredTransactions.forEach(transaction => {
+                const transactionElement = this.createTransactionElement(transaction);
+                container.appendChild(transactionElement);
+            });
+        }
 
-// Filter transactions
-function filterTransactions() {
-    const filter = document.getElementById('transactionFilter').value;
-    const container = document.getElementById('allTransactions');
-    
-    let filteredTransactions = transactions;
-    
-    if (filter !== 'all') {
-        filteredTransactions = transactions.filter(t => t.type === filter);
+        this.showToast(`Found ${filteredTransactions.length} transaction(s)`, 'info');
     }
-    
-    const sortedTransactions = filteredTransactions
-        .sort((a, b) => new Date(b.date) - new Date(a.date));
-    
-    container.innerHTML = sortedTransactions.map(transaction => `
-        <div class="transaction-item">
-            <div class="transaction-info">
-                <div class="transaction-icon ${transaction.type}">
-                    <i class="fas ${transaction.type === 'income' ? 'fa-arrow-up' : 'fa-arrow-down'}"></i>
-                </div>
-                <div class="transaction-details">
-                    <h4>${transaction.description}</h4>
-                    <p>${formatDate(transaction.date)} • ${transaction.category}</p>
-                </div>
-            </div>
-            <div class="transaction-amount ${transaction.type}">
-                ${transaction.type === 'income' ? '+' : '-'}$${transaction.amount.toFixed(2)}
-            </div>
-        </div>
-    `).join('');
-}
 
-// Render claims
-function renderClaims() {
-    const container = document.getElementById('claimsList');
-    if (!container) return;
-    
-    const sortedClaims = claims
-        .sort((a, b) => new Date(b.date) - new Date(a.date));
-    
-    container.innerHTML = sortedClaims.map(claim => `
-        <div class="claim-item">
-            <div class="claim-header">
-                <span class="claim-type">${claim.type}</span>
-                <span class="claim-status ${claim.status}">${claim.status.charAt(0).toUpperCase() + claim.status.slice(1)}</span>
-            </div>
-            <p>${claim.description}</p>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
-                <span class="claim-amount">$${claim.amount.toFixed(2)}</span>
-                <span class="claim-date">${formatDate(claim.date)}</span>
-            </div>
-        </div>
-    `).join('');
-}
-
-// Handle claim form submission
-function handleClaimSubmission(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(e.target);
-    const claimData = {
-        id: claims.length + 1,
-        type: document.getElementById('claimType').value,
-        amount: parseFloat(document.getElementById('claimAmount').value),
-        description: document.getElementById('claimDescription').value,
-        status: 'pending',
-        date: new Date().toISOString().split('T')[0]
-    };
-    
-    // Validate form
-    if (!claimData.type || !claimData.amount || !claimData.description) {
-        showToast('Please fill in all required fields', 'error');
-        return;
-    }
-    
-    // Add claim to array
-    claims.push(claimData);
-    
-    // Update UI
-    renderClaims();
-    
-    // Reset form
-    e.target.reset();
-    
-    // Save to storage
-    saveToStorage();
-    
-    // Show success message
-    showToast('Claim submitted successfully! You will receive an update within 3-5 business days.', 'success');
-}
-
-// Profile management
-function editProfile() {
-    // Populate modal with current data
-    document.getElementById('editName').value = studentProfile.name;
-    document.getElementById('editEmail').value = studentProfile.email;
-    document.getElementById('editPhone').value = studentProfile.phone;
-    document.getElementById('editAddress').value = studentProfile.address;
-    
-    // Show modal
-    document.getElementById('profileModal').classList.add('active');
-}
-
-function closeProfileModal() {
-    document.getElementById('profileModal').classList.remove('active');
-}
-
-function handleProfileUpdate(e) {
-    e.preventDefault();
-    
-    // Update profile data
-    studentProfile.name = document.getElementById('editName').value;
-    studentProfile.email = document.getElementById('editEmail').value;
-    studentProfile.phone = document.getElementById('editPhone').value;
-    studentProfile.address = document.getElementById('editAddress').value;
-    
-    // Update UI
-    updateProfileDisplay();
-    
-    // Close modal
-    closeProfileModal();
-    
-    // Save to storage
-    saveToStorage();
-    
-    // Show success message
-    showToast('Profile updated successfully!', 'success');
-}
-
-function updateProfileDisplay() {
-    document.getElementById('studentName').textContent = studentProfile.name;
-    document.getElementById('studentId').textContent = studentProfile.id;
-    document.getElementById('studentCourse').textContent = studentProfile.course;
-    document.getElementById('studentEmail').textContent = studentProfile.email;
-    document.getElementById('studentPhone').textContent = studentProfile.phone;
-    document.getElementById('studentAddress').textContent = studentProfile.address;
-}
-
-// Chat functionality
-function initializeChat() {
-    const chatBubble = document.getElementById('chatBubble');
-    const chatWindow = document.getElementById('chatWindow');
-    const closeChat = document.getElementById('closeChat');
-    
-    if (chatBubble) {
-        chatBubble.addEventListener('click', function() {
-            chatWindow.classList.toggle('active');
-        });
-    }
-    
-    if (closeChat) {
-        closeChat.addEventListener('click', function() {
-            chatWindow.classList.remove('active');
-        });
-    }
-}
-
-function sendChatMessage() {
-    const input = document.getElementById('chatInputField');
-    const messagesContainer = document.getElementById('chatMessages');
-    
-    const message = input.value.trim();
-    if (!message) return;
-    
-    // Add user message
-    const userMessage = document.createElement('div');
-    userMessage.className = 'message user-message';
-    userMessage.innerHTML = `<p>${message}</p>`;
-    messagesContainer.appendChild(userMessage);
-    
-    // Clear input
-    input.value = '';
-    
-    // Simulate bot response
-    setTimeout(() => {
-        const botMessage = document.createElement('div');
-        botMessage.className = 'message bot-message';
-        botMessage.innerHTML = `<p>${getBotResponse(message)}</p>`;
-        messagesContainer.appendChild(botMessage);
+    // PDF Generation
+    async downloadStatement() {
+        this.showToast('Preparing your statement...', 'info');
         
-        // Scroll to bottom
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    }, 1000);
-    
-    // Scroll to bottom
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-}
-
-function getBotResponse(userMessage) {
-    const message = userMessage.toLowerCase();
-    
-    if (message.includes('fee') || message.includes('payment')) {
-        return 'Your current semester fees are fully paid. For payment history or upcoming fees, check the School Fees section.';
-    } else if (message.includes('claim') || message.includes('reimburs')) {
-        return 'You can submit claims for medical expenses, transportation, or equipment. Go to the Claims section to submit a new claim.';
-    } else if (message.includes('scholarship') || message.includes('bursary')) {
-        return 'You currently have an active Merit Scholarship worth $2,000. Check the Scholarships section for more opportunities.';
-    } else if (message.includes('balance') || message.includes('money')) {
-        return 'Your current account balance is $1,250.30. You can view detailed transactions in the Transactions section.';
-    } else if (message.includes('help') || message.includes('support')) {
-        return 'I can help you with questions about fees, claims, scholarships, and account balances. You can also contact our finance office directly at finance@rp.edu.sg.';
-    } else {
-        return 'Thank you for your message. For specific financial queries, please visit the relevant sections in your dashboard or contact our finance office at finance@rp.edu.sg.';
-    }
-}
-
-// PDF Statement Generation
-function downloadStatement() {
-    try {
-        // Create a new jsPDF instance
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        
-        // Add header
-        doc.setFontSize(20);
-        doc.setTextColor(30, 132, 73); // RP Green
-        doc.text('RPay Financial Statement', 20, 30);
-        
-        // Add student info
-        doc.setFontSize(12);
-        doc.setTextColor(0, 0, 0);
-        doc.text(`Student: ${studentProfile.name}`, 20, 50);
-        doc.text(`Student ID: ${studentProfile.id}`, 20, 60);
-        doc.text(`Course: ${studentProfile.course}`, 20, 70);
-        doc.text(`Statement Date: ${formatDate(new Date().toISOString().split('T')[0])}`, 20, 80);
-        
-        // Add line
-        doc.line(20, 90, 190, 90);
-        
-        // Add transactions
-        doc.setFontSize(14);
-        doc.text('Recent Transactions', 20, 105);
-        
-        let yPosition = 120;
-        const recentTransactions = transactions
-            .sort((a, b) => new Date(b.date) - new Date(a.date))
-            .slice(0, 10);
-        
-        doc.setFontSize(10);
-        recentTransactions.forEach(transaction => {
-            const sign = transaction.type === 'income' ? '+' : '-';
-            const amount = `${sign}$${transaction.amount.toFixed(2)}`;
+        try {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
             
-            doc.text(formatDate(transaction.date), 20, yPosition);
-            doc.text(transaction.description, 50, yPosition);
-            doc.text(amount, 150, yPosition);
+            // Header
+            doc.setFontSize(20);
+            doc.text('RPay Financial Statement', 20, 30);
             
-            yPosition += 10;
-        });
+            doc.setFontSize(12);
+            doc.text(`Student: ${this.studentData.name}`, 20, 50);
+            doc.text(`Student ID: ${this.studentData.studentId}`, 20, 60);
+            doc.text(`Generated: ${new Date().toLocaleDateString()}`, 20, 70);
+            
+            // Fee Summary
+            doc.setFontSize(16);
+            doc.text('Fee Summary', 20, 90);
+            doc.setFontSize(12);
+            doc.text('Tuition Fee: $2,200.00', 20, 105);
+            doc.text('Student Services: $150.00', 20, 115);
+            doc.text('Technology Fee: $100.00', 20, 125);
+            doc.text('Total Outstanding: $2,450.00', 20, 140);
+            
+            // Recent Transactions
+            doc.setFontSize(16);
+            doc.text('Recent Transactions', 20, 160);
+            doc.setFontSize(10);
+            
+            let yPosition = 175;
+            this.transactions.slice(0, 10).forEach(transaction => {
+                const type = transaction.type === 'income' ? '+' : '-';
+                const line = `${transaction.date.toLocaleDateString()} - ${transaction.description} - ${type}$${transaction.amount.toFixed(2)}`;
+                doc.text(line, 20, yPosition);
+                yPosition += 10;
+            });
+            
+            doc.save(`RPay_Statement_${this.studentData.studentId}_${new Date().toISOString().split('T')[0]}.pdf`);
+            this.showToast('Statement downloaded successfully!', 'success');
+            
+        } catch (error) {
+            console.error('PDF generation error:', error);
+            this.showToast('Error generating statement. Please try again.', 'error');
+        }
+    }
+
+    // Toast Notifications
+    showToast(message, type = 'info') {
+        const container = document.getElementById('toastContainer');
+        if (!container) return;
+
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
         
-        // Add summary
-        doc.line(20, yPosition + 5, 190, yPosition + 5);
-        doc.setFontSize(12);
-        doc.text('Account Summary', 20, yPosition + 20);
-        doc.text('Total School Fees: $8,500.00 (Paid)', 20, yPosition + 35);
-        doc.text('Active Scholarships: $2,000.00', 20, yPosition + 45);
-        doc.text('Current Balance: $1,250.30', 20, yPosition + 55);
+        container.appendChild(toast);
         
-        // Save the PDF
-        doc.save('rpay-financial-statement.pdf');
-        
-        showToast('Financial statement downloaded successfully!', 'success');
-    } catch (error) {
-        console.error('Error generating PDF:', error);
-        showToast('Error generating PDF. Please try again.', 'error');
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 5000);
+    }
+
+    // Utility Methods
+    formatCurrency(amount) {
+        return new Intl.NumberFormat('en-SG', {
+            style: 'currency',
+            currency: 'SGD'
+        }).format(amount);
+    }
+
+    formatDate(date) {
+        return new Intl.DateTimeFormat('en-SG', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        }).format(date);
     }
 }
 
-// Toast notifications
-function showToast(message, type = 'info') {
-    const toastContainer = document.getElementById('toastContainer');
+// Initialize the application when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    window.rpayApp = new RPay();
     
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 0.5rem;">
-            <i class="fas ${getToastIcon(type)}"></i>
-            <span>${message}</span>
-        </div>
-    `;
+    // Add accessibility improvements
+    document.addEventListener('keydown', (e) => {
+        // Escape key closes modals and chat
+        if (e.key === 'Escape') {
+            const modal = document.querySelector('.modal.active');
+            const chat = document.querySelector('.chat-window.active');
+            
+            if (modal) {
+                window.rpayApp.closeModal();
+            } else if (chat) {
+                chat.classList.remove('active');
+                chat.setAttribute('aria-hidden', 'true');
+            }
+        }
+    });
     
-    toastContainer.appendChild(toast);
+    // Handle focus management for better accessibility
+    const focusableElements = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
     
-    // Auto remove after 5 seconds
-    setTimeout(() => {
-        toast.remove();
-    }, 5000);
-}
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Tab') {
+            const modal = document.querySelector('.modal.active');
+            if (modal) {
+                const focusable = modal.querySelectorAll(focusableElements);
+                const firstFocusable = focusable[0];
+                const lastFocusable = focusable[focusable.length - 1];
+                
+                if (e.shiftKey) {
+                    if (document.activeElement === firstFocusable) {
+                        lastFocusable.focus();
+                        e.preventDefault();
+                    }
+                } else {
+                    if (document.activeElement === lastFocusable) {
+                        firstFocusable.focus();
+                        e.preventDefault();
+                    }
+                }
+            }
+        }
+    });
+});
 
-function getToastIcon(type) {
-    switch (type) {
-        case 'success': return 'fa-check-circle';
-        case 'error': return 'fa-exclamation-circle';
-        case 'warning': return 'fa-exclamation-triangle';
-        default: return 'fa-info-circle';
-    }
-}
-
-// Utility functions
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-SG', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
+// Service Worker Registration for PWA capabilities (optional)
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+                console.log('SW registered: ', registration);
+            })
+            .catch((registrationError) => {
+                console.log('SW registration failed: ', registrationError);
+            });
     });
 }
-
-function saveToStorage() {
-    localStorage.setItem('rpay_transactions', JSON.stringify(transactions));
-    localStorage.setItem('rpay_claims', JSON.stringify(claims));
-    localStorage.setItem('rpay_profile', JSON.stringify(studentProfile));
-}
-
-function loadFromStorage() {
-    const storedTransactions = localStorage.getItem('rpay_transactions');
-    const storedClaims = localStorage.getItem('rpay_claims');
-    const storedProfile = localStorage.getItem('rpay_profile');
-    
-    if (storedTransactions) {
-        transactions = JSON.parse(storedTransactions);
-    }
-    
-    if (storedClaims) {
-        claims = JSON.parse(storedClaims);
-    }
-    
-    if (storedProfile) {
-        studentProfile = JSON.parse(storedProfile);
-        updateProfileDisplay();
-    }
-}
-
-// Close modals when clicking outside
-document.addEventListener('click', function(e) {
-    const profileModal = document.getElementById('profileModal');
-    
-    if (e.target === profileModal) {
-        closeProfileModal();
-    }
-});
-
-// Keyboard accessibility
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        // Close any open modals
-        closeProfileModal();
-        
-        // Close chat window
-        const chatWindow = document.getElementById('chatWindow');
-        if (chatWindow.classList.contains('active')) {
-            chatWindow.classList.remove('active');
-        }
-    }
-});
-
-// Add keyboard navigation for tabs
-document.addEventListener('keydown', function(e) {
-    if (e.ctrlKey && e.key >= '1' && e.key <= '6') {
-        e.preventDefault();
-        const tabs = ['dashboard', 'school-fees', 'claims', 'scholarships', 'transactions', 'profile'];
-        const tabIndex = parseInt(e.key) - 1;
-        if (tabs[tabIndex]) {
-            switchTab(tabs[tabIndex]);
-        }
-    }
-});
-
-// Export functions for global use
-window.switchTab = switchTab;
-window.editProfile = editProfile;
-window.closeProfileModal = closeProfileModal;
-window.downloadStatement = downloadStatement;
