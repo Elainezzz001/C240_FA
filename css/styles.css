@@ -436,58 +436,180 @@ body {
     border: 1px solid var(--border-light);
 }
 
-/* Aid Info */
-.aid-info {
-    display: grid;
-    gap: var(--spacing-xl);
-}
-
-.aid-card {
-    background: var(--white);
-    border-radius: var(--radius-xl);
-    padding: var(--spacing-xl);
-    box-shadow: 0 4px 20px var(--shadow);
+/* Transaction and Claim Item Styles */
+.transaction-item,
+.claim-item {
+    display: flex;
+    align-items: center;
+    padding: var(--spacing-lg);
     border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--spacing-md);
+    transition: all var(--transition-fast);
+    background: var(--white);
 }
 
-.aid-card h3 {
+.transaction-item:hover,
+.claim-item:hover {
+    box-shadow: 0 4px 15px var(--shadow);
+    transform: translateY(-2px);
+}
+
+.transaction-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, var(--primary-green), var(--teal));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: var(--spacing-lg);
+    flex-shrink: 0;
+}
+
+.transaction-icon i {
+    color: var(--white);
+    font-size: var(--font-size-lg);
+}
+
+.transaction-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.transaction-details h4,
+.claim-header h4 {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.transaction-date,
+.claim-date {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.transaction-type {
+    display: inline-block;
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background-color: var(--background-gray);
+    color: var(--text-secondary);
+    border-radius: var(--radius-sm);
+}
+
+.transaction-amount {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    margin: 0 var(--spacing-lg);
+    flex-shrink: 0;
+}
+
+.transaction-amount.positive {
+    color: var(--success);
+}
+
+.transaction-amount.negative {
+    color: var(--text-primary);
+}
+
+.transaction-status {
+    flex-shrink: 0;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-badge.completed,
+.status-badge.approved {
+    background-color: rgba(39, 174, 96, 0.1);
+    color: var(--success);
+}
+
+.status-badge.processing,
+.status-badge.pending {
+    background-color: rgba(243, 156, 18, 0.1);
+    color: var(--warning);
+}
+
+.status-badge.rejected {
+    background-color: rgba(231, 76, 60, 0.1);
+    color: var(--error);
+}
+
+/* Claim Item Specific Styles */
+.claim-item {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.claim-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-sm);
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+}
+
+.claim-description {
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-md);
+    line-height: 1.5;
+}
+
+.claim-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+}
+
+.claim-id {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    background-color: var(--background-gray);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: var(--spacing-2xl);
+    color: var(--text-secondary);
+}
+
+.empty-state i {
+    font-size: 4rem;
+    margin-bottom: var(--spacing-lg);
+    color: var(--border-light);
+}
+
+.empty-state h3 {
     font-size: var(--font-size-xl);
     font-weight: 600;
     color: var(--text-primary);
-    margin-bottom: var(--spacing-md);
-}
-
-.aid-amount {
-    font-size: var(--font-size-2xl);
-    font-weight: 700;
-    color: var(--teal);
-    margin-bottom: var(--spacing-lg);
-}
-
-.aid-progress {
-    margin-top: var(--spacing-lg);
-}
-
-.progress-bar {
-    width: 100%;
-    height: 12px;
-    background-color: var(--background-gray);
-    border-radius: var(--radius-sm);
-    overflow: hidden;
     margin-bottom: var(--spacing-sm);
 }
 
-.progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--primary-green), var(--teal));
-    border-radius: var(--radius-sm);
-    transition: width var(--transition-slow);
-}
-
-.progress-text {
-    font-size: var(--font-size-sm);
-    color: var(--text-secondary);
-    font-weight: 500;
+.empty-state p {
+    margin-bottom: var(--spacing-lg);
 }
 
 /* Modal */
