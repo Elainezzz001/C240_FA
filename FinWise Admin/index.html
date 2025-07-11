@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FinWise Admin</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <img src="../logo/RP Logo.png" alt="FinWise Admin Logo" class="logo" />
+    <h1>FinWise Admin</h1>
+    <nav>
+      <ul>
+        <li><a href="#dashboard">Dashboard</a></li>
+        <li><a href="#transactions">Transactions</a></li>
+        <li><a href="#reimbursements">Reimbursements</a></li>
+        <li><a href="#settings">Settings</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main>
+    <section id="dashboard">
+      <h2>Dashboard</h2>
+      <canvas id="budgetChart" aria-label="Budget Overview Chart" role="img"></canvas>
+    </section>
+    <section id="transactions">
+      <h2>Transactions</h2>
+      <input type="search" id="searchTransactions" placeholder="Search transactions..." aria-label="Search transactions" />
+      <table id="transactionsTable" aria-label="Transactions Table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Amount</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Transaction rows will be injected here -->
+        </tbody>
+      </table>
+    </section>
+    <section id="reimbursements">
+      <h2>Reimbursements</h2>
+      <form id="reimbursementForm" autocomplete="off">
+        <label for="desc">Description</label>
+        <input type="text" id="desc" name="desc" required />
+        <label for="amount">Amount</label>
+        <input type="number" id="amount" name="amount" min="0" step="0.01" required />
+        <button type="submit">Submit</button>
+      </form>
+      <div id="formMessage" role="alert"></div>
+    </section>
+  </main>
+  <footer>
+    <p>&copy; 2025 FinWise Admin. All rights reserved.</p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
