@@ -1,867 +1,543 @@
-// RPay Financial Admin - JavaScript Application
-// Main application logic for handling UI interactions, animations, and data
-
-// Application state
-const app = {
-    currentTab: 'dashboard',
-    isLoading: false,
-    transactions: [],
-    claims: [],
-    scholarshipApplications: [],
-    isEditingProfile: false,
-    user: {
-        name: 'John Doe',
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'john.doe@student.rp.edu.sg',
-        phone: '+65 9123 4567',
-        studentId: 'RP2021001234',
-        course: 'Diploma in Engineering Informatics',
-        bankName: 'DBS Bank',
-        accountNumber: '****-****-1234',
-        accountHolder: 'John Doe',
-        totalFees: 8450,
-        pendingClaims: 1250,
-        financialAid: 3500,
-        balance: 450
-    }
+// Global Variables
+let currentTab = 'dashboard';
+let transactions = [];
+let claims = [];
+let studentProfile = {
+    name: 'John Doe',
+    id: 'S1234567A',
+    course: 'Diploma in Information Technology',
+    email: 'john.doe@mail.rp.edu.sg',
+    phone: '+65 9123 4567',
+    address: '123 Main Street, Singapore 123456'
 };
 
-// DOM Elements
-const elements = {
-    navLinks: document.querySelectorAll('.nav-link'),
-    tabContents: document.querySelectorAll('.tab-content'),
-    navToggle: document.querySelector('.nav-toggle'),
-    navLinksContainer: document.querySelector('.nav-links'),
-    toast: document.getElementById('toast'),
-    dashboardCards: document.querySelectorAll('.card-amount'),
-    claimForm: document.getElementById('claimForm'),
-    scholarshipForm: document.getElementById('scholarshipForm'),
-    profileForm: document.getElementById('profileForm'),
-    transactionFilter: document.getElementById('transactionFilter'),
-    searchTransactions: document.getElementById('searchTransactions'),
-    transactionList: document.getElementById('transactionList'),
-    claimsList: document.getElementById('claimsList'),
-    applicationsList: document.getElementById('applicationsList'),
-    chatBubble: document.getElementById('chatBubble'),
-    chatWindow: document.getElementById('chatWindow'),
-    chatMessages: document.getElementById('chatMessages'),
-    chatForm: document.getElementById('chatForm'),
-    chatInput: document.getElementById('chatInput')
-};
-
-// Initialize application
+// Initialize app when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
+    loadSampleData();
+    renderRecentTransactions();
+    renderAllTransactions();
+    renderClaims();
     setupEventListeners();
-    loadInitialData();
-    showToast('Dashboard is ready!', 'success');
 });
 
-// Application initialization
+// Initialize the application
 function initializeApp() {
-    console.log('RPay Financial Admin initialized');
+    // Load saved data from localStorage
+    loadFromStorage();
     
-    // Set initial active tab
-    setActiveTab('dashboard');
+    // Set up navigation
+    setupNavigation();
     
-    // Animate dashboard counters
-    animateCounters();
-    
-    // Setup mobile navigation
-    setupMobileNavigation();
-    
-    // Load sample data
-    loadSampleTransactions();
-    loadSampleClaims();
-    loadSampleApplications();
-    
-    // Load user profile from localStorage
-    loadUserProfile();
-    
-    // Initialize chat
+    // Initialize chat functionality
     initializeChat();
+    
+    // Show dashboard by default
+    showTab('dashboard');
 }
 
-// Event listeners setup
-function setupEventListeners() {
-    // Navigation tab switching
-    elements.navLinks.forEach(link => {
-        link.addEventListener('click', handleTabSwitch);
+// Setup navigation event listeners
+function setupNavigation() {
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(item => {
+        item.addEventListener('click', function() {
+            const tabName = this.dataset.tab;
+            switchTab(tabName);
+        });
+    });
+}
+
+// Switch between tabs
+function switchTab(tabName) {
+    // Update active nav item
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.dataset.tab === tabName) {
+            item.classList.add('active');
+        }
     });
     
-    // Mobile navigation toggle
-    if (elements.navToggle) {
-        elements.navToggle.addEventListener('click', toggleMobileNav);
-    }
+    // Show corresponding tab content
+    showTab(tabName);
+    currentTab = tabName;
+}
+
+// Show specific tab content
+function showTab(tabName) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
     
+    // Show selected tab
+    const targetTab = document.getElementById(tabName);
+    if (targetTab) {
+        targetTab.classList.add('active');
+    }
+}
+
+// Setup all event listeners
+function setupEventListeners() {
     // Claim form submission
-    if (elements.claimForm) {
-        elements.claimForm.addEventListener('submit', handleClaimSubmission);
-    }
-    
-    // Scholarship form submission
-    if (elements.scholarshipForm) {
-        elements.scholarshipForm.addEventListener('submit', handleScholarshipSubmission);
+    const claimForm = document.getElementById('claimForm');
+    if (claimForm) {
+        claimForm.addEventListener('submit', handleClaimSubmission);
     }
     
     // Profile form submission
-    if (elements.profileForm) {
-        elements.profileForm.addEventListener('submit', handleProfileSubmission);
+    const profileForm = document.getElementById('profileForm');
+    if (profileForm) {
+        profileForm.addEventListener('submit', handleProfileUpdate);
     }
     
-    // Transaction filtering
-    if (elements.transactionFilter) {
-        elements.transactionFilter.addEventListener('change', filterTransactions);
+    // Transaction filter
+    const transactionFilter = document.getElementById('transactionFilter');
+    if (transactionFilter) {
+        transactionFilter.addEventListener('change', filterTransactions);
     }
     
-    // Transaction search
-    if (elements.searchTransactions) {
-        elements.searchTransactions.addEventListener('input', debounce(searchTransactions, 300));
+    // Chat functionality
+    const sendButton = document.getElementById('sendMessage');
+    const chatInput = document.getElementById('chatInputField');
+    
+    if (sendButton) {
+        sendButton.addEventListener('click', sendChatMessage);
     }
     
-    // Close modal when clicking outside
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('modal')) {
-            closeModal(e.target.id);
-        }
-    });
-    
-    // Keyboard navigation for modals
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            const openModal = document.querySelector('.modal.show');
-            if (openModal) {
-                closeModal(openModal.id);
-            }
-        }
-    });
-    
-    // Chat bubble click handler
-    if (elements.chatBubble) {
-        elements.chatBubble.addEventListener('click', toggleChat);
-        elements.chatBubble.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                toggleChat();
+    if (chatInput) {
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendChatMessage();
             }
         });
     }
-    
-    // Chat form submission
-    if (elements.chatForm) {
-        elements.chatForm.addEventListener('submit', handleChatSubmit);
-    }
-    
-    // Auto-resize chat input
-    if (elements.chatInput) {
-        elements.chatInput.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = Math.min(this.scrollHeight, 100) + 'px';
-        });
-    }
-    
-    // Close chat when clicking outside
-    document.addEventListener('click', function(e) {
-        const chatWindow = document.getElementById('chatWindow');
-        const chatBubble = document.getElementById('chatBubble');
-        
-        if (isChatOpen && chatWindow && !chatWindow.contains(e.target) && !chatBubble.contains(e.target)) {
-            toggleChat();
+}
+
+// Load sample data
+function loadSampleData() {
+    transactions = [
+        {
+            id: 1,
+            type: 'income',
+            description: 'Scholarship Payment',
+            amount: 2000.00,
+            date: '2025-07-01',
+            category: 'scholarship'
+        },
+        {
+            id: 2,
+            type: 'expense',
+            description: 'School Fees Payment',
+            amount: 7700.00,
+            date: '2025-06-15',
+            category: 'fees'
+        },
+        {
+            id: 3,
+            type: 'income',
+            description: 'Bursary Award',
+            amount: 500.00,
+            date: '2025-06-10',
+            category: 'bursary'
+        },
+        {
+            id: 4,
+            type: 'expense',
+            description: 'Textbook Purchase',
+            amount: 150.00,
+            date: '2025-06-05',
+            category: 'books'
+        },
+        {
+            id: 5,
+            type: 'expense',
+            description: 'Transportation',
+            amount: 50.00,
+            date: '2025-07-08',
+            category: 'transport'
         }
-    });
+    ];
     
-    // Escape key to close chat
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && isChatOpen) {
-            toggleChat();
+    claims = [
+        {
+            id: 1,
+            type: 'Medical Expenses',
+            amount: 120.00,
+            description: 'Doctor consultation and medication',
+            status: 'pending',
+            date: '2025-07-05'
+        },
+        {
+            id: 2,
+            type: 'Transportation',
+            amount: 230.00,
+            description: 'Monthly transport allowance',
+            status: 'approved',
+            date: '2025-06-20'
+        },
+        {
+            id: 3,
+            type: 'Equipment/Books',
+            amount: 85.00,
+            description: 'Programming textbooks',
+            status: 'rejected',
+            date: '2025-06-15'
         }
-    });
-}
-
-// Tab switching functionality
-function handleTabSwitch(e) {
-    e.preventDefault();
-    const tabName = e.currentTarget.getAttribute('data-tab');
-    if (tabName && tabName !== app.currentTab) {
-        setActiveTab(tabName);
-    }
-}
-
-function setActiveTab(tabName) {
-    // Update navigation
-    elements.navLinks.forEach(link => {
-        link.classList.remove('active');
-        link.removeAttribute('aria-current');
-    });
+    ];
     
-    const activeLink = document.querySelector(`[data-tab="${tabName}"]`);
-    if (activeLink) {
-        activeLink.classList.add('active');
-        activeLink.setAttribute('aria-current', 'page');
+    // Save to localStorage
+    saveToStorage();
+}
+
+// Render recent transactions on dashboard
+function renderRecentTransactions() {
+    const container = document.getElementById('recentTransactions');
+    if (!container) return;
+    
+    const recentTransactions = transactions
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .slice(0, 5);
+    
+    container.innerHTML = recentTransactions.map(transaction => `
+        <div class="transaction-item">
+            <div class="transaction-info">
+                <div class="transaction-icon ${transaction.type}">
+                    <i class="fas ${transaction.type === 'income' ? 'fa-arrow-up' : 'fa-arrow-down'}"></i>
+                </div>
+                <div class="transaction-details">
+                    <h4>${transaction.description}</h4>
+                    <p>${formatDate(transaction.date)}</p>
+                </div>
+            </div>
+            <div class="transaction-amount ${transaction.type}">
+                ${transaction.type === 'income' ? '+' : '-'}$${transaction.amount.toFixed(2)}
+            </div>
+        </div>
+    `).join('');
+}
+
+// Render all transactions
+function renderAllTransactions() {
+    const container = document.getElementById('allTransactions');
+    if (!container) return;
+    
+    const sortedTransactions = transactions
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    container.innerHTML = sortedTransactions.map(transaction => `
+        <div class="transaction-item">
+            <div class="transaction-info">
+                <div class="transaction-icon ${transaction.type}">
+                    <i class="fas ${transaction.type === 'income' ? 'fa-arrow-up' : 'fa-arrow-down'}"></i>
+                </div>
+                <div class="transaction-details">
+                    <h4>${transaction.description}</h4>
+                    <p>${formatDate(transaction.date)} • ${transaction.category}</p>
+                </div>
+            </div>
+            <div class="transaction-amount ${transaction.type}">
+                ${transaction.type === 'income' ? '+' : '-'}$${transaction.amount.toFixed(2)}
+            </div>
+        </div>
+    `).join('');
+}
+
+// Filter transactions
+function filterTransactions() {
+    const filter = document.getElementById('transactionFilter').value;
+    const container = document.getElementById('allTransactions');
+    
+    let filteredTransactions = transactions;
+    
+    if (filter !== 'all') {
+        filteredTransactions = transactions.filter(t => t.type === filter);
     }
     
-    // Update tab content
-    elements.tabContents.forEach(content => {
-        content.classList.remove('active');
-        content.setAttribute('aria-hidden', 'true');
-    });
+    const sortedTransactions = filteredTransactions
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
     
-    const activeContent = document.getElementById(tabName);
-    if (activeContent) {
-        activeContent.classList.add('active');
-        activeContent.setAttribute('aria-hidden', 'false');
-    }
+    container.innerHTML = sortedTransactions.map(transaction => `
+        <div class="transaction-item">
+            <div class="transaction-info">
+                <div class="transaction-icon ${transaction.type}">
+                    <i class="fas ${transaction.type === 'income' ? 'fa-arrow-up' : 'fa-arrow-down'}"></i>
+                </div>
+                <div class="transaction-details">
+                    <h4>${transaction.description}</h4>
+                    <p>${formatDate(transaction.date)} • ${transaction.category}</p>
+                </div>
+            </div>
+            <div class="transaction-amount ${transaction.type}">
+                ${transaction.type === 'income' ? '+' : '-'}$${transaction.amount.toFixed(2)}
+            </div>
+        </div>
+    `).join('');
+}
+
+// Render claims
+function renderClaims() {
+    const container = document.getElementById('claimsList');
+    if (!container) return;
     
-    // Update application state
-    app.currentTab = tabName;
+    const sortedClaims = claims
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
     
-    // Load tab-specific data
-    loadTabData(tabName);
+    container.innerHTML = sortedClaims.map(claim => `
+        <div class="claim-item">
+            <div class="claim-header">
+                <span class="claim-type">${claim.type}</span>
+                <span class="claim-status ${claim.status}">${claim.status.charAt(0).toUpperCase() + claim.status.slice(1)}</span>
+            </div>
+            <p>${claim.description}</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
+                <span class="claim-amount">$${claim.amount.toFixed(2)}</span>
+                <span class="claim-date">${formatDate(claim.date)}</span>
+            </div>
+        </div>
+    `).join('');
 }
 
-// Mobile navigation
-function setupMobileNavigation() {
-    const mediaQuery = window.matchMedia('(max-width: 768px)');
-    mediaQuery.addListener(handleMobileNavigation);
-    handleMobileNavigation(mediaQuery);
-}
-
-function handleMobileNavigation(e) {
-    if (!e.matches && elements.navLinksContainer) {
-        elements.navLinksContainer.classList.remove('show');
-        elements.navToggle.setAttribute('aria-expanded', 'false');
-    }
-}
-
-function toggleMobileNav() {
-    if (elements.navLinksContainer) {
-        const isOpen = elements.navLinksContainer.classList.toggle('show');
-        elements.navToggle.setAttribute('aria-expanded', isOpen.toString());
-        
-        // Update hamburger animation
-        const hamburger = elements.navToggle.querySelector('.hamburger');
-        if (hamburger) {
-            hamburger.style.transform = isOpen ? 'rotate(45deg)' : '';
-        }
-    }
-}
-
-// Counter animations
-function animateCounters() {
-    elements.dashboardCards.forEach(card => {
-        const target = parseInt(card.getAttribute('data-target'));
-        const duration = 2000; // 2 seconds
-        const increment = target / (duration / 16); // 60fps
-        let current = 0;
-        
-        const updateCounter = () => {
-            current += increment;
-            if (current < target) {
-                card.textContent = `$${Math.floor(current).toLocaleString()}`;
-                requestAnimationFrame(updateCounter);
-            } else {
-                card.textContent = `$${target.toLocaleString()}`;
-            }
-        };
-        
-        // Start animation after a slight delay
-        setTimeout(updateCounter, Math.random() * 500);
-    });
-}
-
-// Modal management
-function openModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.classList.add('show');
-        modal.setAttribute('aria-hidden', 'false');
-        
-        // Focus the first focusable element
-        const firstFocusable = modal.querySelector('input, select, textarea, button');
-        if (firstFocusable) {
-            setTimeout(() => firstFocusable.focus(), 100);
-        }
-        
-        // Prevent body scroll
-        document.body.style.overflow = 'hidden';
-    }
-}
-
-function closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.classList.remove('show');
-        modal.setAttribute('aria-hidden', 'true');
-        
-        // Restore body scroll
-        document.body.style.overflow = '';
-        
-        // Reset form if it's a form modal
-        const form = modal.querySelector('form');
-        if (form) {
-            form.reset();
-            clearFormErrors(form);
-        }
-    }
-}
-
-// Form handling
+// Handle claim form submission
 function handleClaimSubmission(e) {
     e.preventDefault();
     
     const formData = new FormData(e.target);
     const claimData = {
-        id: Date.now(),
-        type: formData.get('claimType'),
-        amount: parseFloat(formData.get('claimAmount')),
-        description: formData.get('claimDescription'),
-        receipt: formData.get('claimReceipt'),
+        id: claims.length + 1,
+        type: document.getElementById('claimType').value,
+        amount: parseFloat(document.getElementById('claimAmount').value),
+        description: document.getElementById('claimDescription').value,
         status: 'pending',
-        submittedDate: new Date().toISOString(),
-        submittedBy: app.user.name
+        date: new Date().toISOString().split('T')[0]
     };
     
     // Validate form
-    if (validateClaimForm(claimData)) {
-        // Simulate API call
-        submitClaim(claimData);
-    }
-}
-
-function validateClaimForm(data) {
-    const errors = [];
-    
-    if (!data.type) {
-        errors.push('Please select a claim type');
+    if (!claimData.type || !claimData.amount || !claimData.description) {
+        showToast('Please fill in all required fields', 'error');
+        return;
     }
     
-    if (!data.amount || data.amount <= 0) {
-        errors.push('Please enter a valid amount');
-    }
+    // Add claim to array
+    claims.push(claimData);
     
-    if (!data.description || data.description.trim().length < 10) {
-        errors.push('Please provide a detailed description (minimum 10 characters)');
-    }
+    // Update UI
+    renderClaims();
     
-    if (!data.receipt) {
-        errors.push('Please upload a receipt');
-    }
+    // Reset form
+    e.target.reset();
     
-    if (errors.length > 0) {
-        showFormErrors(errors);
-        return false;
-    }
+    // Save to storage
+    saveToStorage();
     
-    return true;
-}
-
-function showFormErrors(errors, formId) {
-    const form = document.getElementById(formId);
-    if (!form) return;
-    
-    // Remove existing error messages
-    clearFormErrors(form);
-    
-    // Add new error messages
-    const errorContainer = document.createElement('div');
-    errorContainer.className = 'form-errors';
-    errorContainer.style.cssText = `
-        background-color: rgba(231, 76, 60, 0.1);
-        border: 1px solid var(--error);
-        border-radius: var(--radius-md);
-        padding: var(--spacing-md);
-        margin-bottom: var(--spacing-lg);
-    `;
-    
-    const errorList = document.createElement('ul');
-    errorList.style.cssText = `
-        margin: 0;
-        padding-left: var(--spacing-lg);
-        color: var(--error);
-    `;
-    
-    errors.forEach(error => {
-        const errorItem = document.createElement('li');
-        errorItem.textContent = error;
-        errorItem.style.marginBottom = 'var(--spacing-xs)';
-        errorList.appendChild(errorItem);
-    });
-    
-    errorContainer.appendChild(errorList);
-    form.insertBefore(errorContainer, form.querySelector('.form-actions'));
-}
-
-function clearFormErrors(form) {
-    const errors = form.querySelectorAll('.form-error');
-    errors.forEach(error => error.remove());
-}
-
-function submitClaim(claimData) {
-    // Show loading state
-    const submitBtn = elements.claimForm.querySelector('button[type="submit"]');
-    const originalText = submitBtn.textContent;
-    submitBtn.textContent = 'Submitting...';
-    submitBtn.disabled = true;
-    
-    // Simulate API call
-    setTimeout(() => {
-        // Add to claims list
-        app.claims.unshift(claimData);
-        
-        // Update UI
-        updateClaimsList();
-        updatePendingClaimsAmount();
-        
-        // Close modal and show success
-        closeModal('claimModal');
-        showToast('Claim submitted successfully!', 'success');
-        
-        // Reset button
-        submitBtn.textContent = originalText;
-        submitBtn.disabled = false;
-        
-    }, 1500);
-}
-
-// Scholarship application handling
-function handleScholarshipSubmission(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(e.target);
-    const applicationData = {
-        id: Date.now(),
-        type: formData.get('scholarshipType'),
-        gpa: parseFloat(formData.get('currentGPA')),
-        householdIncome: parseFloat(formData.get('householdIncome')),
-        personalStatement: formData.get('personalStatement'),
-        supportingDocs: formData.get('supportingDocs'),
-        status: 'submitted',
-        submittedDate: new Date().toISOString(),
-        submittedBy: app.user.name
-    };
-    
-    // Validate form
-    if (validateScholarshipForm(applicationData)) {
-        submitScholarshipApplication(applicationData);
-    }
-}
-
-function validateScholarshipForm(data) {
-    const errors = [];
-    
-    if (!data.type) {
-        errors.push('Please select a scholarship/bursary type');
-    }
-    
-    if (!data.gpa || data.gpa < 0 || data.gpa > 4.0) {
-        errors.push('Please enter a valid GPA (0.0 - 4.0)');
-    }
-    
-    if (!data.householdIncome || data.householdIncome < 0) {
-        errors.push('Please enter a valid household income');
-    }
-    
-    if (!data.personalStatement || data.personalStatement.trim().length < 50) {
-        errors.push('Please provide a detailed personal statement (minimum 50 characters)');
-    }
-    
-    if (!data.supportingDocs) {
-        errors.push('Please upload supporting documents');
-    }
-    
-    if (errors.length > 0) {
-        showFormErrors(errors, 'scholarshipForm');
-        return false;
-    }
-    
-    return true;
-}
-
-function submitScholarshipApplication(applicationData) {
-    // Show loading state
-    const submitBtn = elements.scholarshipForm.querySelector('button[type="submit"]');
-    const originalText = submitBtn.textContent;
-    submitBtn.textContent = 'Submitting...';
-    submitBtn.disabled = true;
-    
-    // Simulate API call
-    setTimeout(() => {
-        // Add to applications list
-        app.scholarshipApplications.unshift(applicationData);
-        
-        // Save to localStorage
-        saveToLocalStorage('scholarshipApplications', app.scholarshipApplications);
-        
-        // Update UI
-        updateApplicationsList();
-        
-        // Close modal and show success
-        closeModal('scholarshipModal');
-        showToast('Scholarship application submitted successfully!', 'success');
-        
-        // Reset button
-        submitBtn.textContent = originalText;
-        submitBtn.disabled = false;
-        
-    }, 2000);
+    // Show success message
+    showToast('Claim submitted successfully! You will receive an update within 3-5 business days.', 'success');
 }
 
 // Profile management
-function toggleEditProfile() {
-    const forms = document.querySelectorAll('.profile-form input, .profile-form select, .profile-form textarea');
-    const editBtn = document.getElementById('editProfileBtn');
-    const actions = document.getElementById('profileActions');
+function editProfile() {
+    // Populate modal with current data
+    document.getElementById('editName').value = studentProfile.name;
+    document.getElementById('editEmail').value = studentProfile.email;
+    document.getElementById('editPhone').value = studentProfile.phone;
+    document.getElementById('editAddress').value = studentProfile.address;
     
-    if (!app.isEditingProfile) {
-        // Enable editing
-        forms.forEach(input => {
-            if (input.id !== 'studentId' && input.id !== 'email') { // Keep some fields readonly
-                input.removeAttribute('readonly');
-                input.style.backgroundColor = 'var(--white)';
-                input.style.color = 'var(--text-primary)';
-                input.style.cursor = 'text';
-            }
-        });
-        
-        editBtn.innerHTML = '<i class="fas fa-times" aria-hidden="true"></i> Cancel Edit';
-        editBtn.className = 'btn btn-outline';
-        actions.style.display = 'flex';
-        app.isEditingProfile = true;
-    } else {
-        cancelEditProfile();
-    }
+    // Show modal
+    document.getElementById('profileModal').classList.add('active');
 }
 
-function cancelEditProfile() {
-    const forms = document.querySelectorAll('.profile-form input, .profile-form select, .profile-form textarea');
-    const editBtn = document.getElementById('editProfileBtn');
-    const actions = document.getElementById('profileActions');
-    
-    // Disable editing and restore original values
-    forms.forEach(input => {
-        input.setAttribute('readonly', 'true');
-        input.style.backgroundColor = 'var(--background-gray)';
-        input.style.color = 'var(--text-secondary)';
-        input.style.cursor = 'not-allowed';
-        
-        // Restore original values
-        const fieldName = input.name;
-        if (app.user[fieldName]) {
-            input.value = app.user[fieldName];
-        }
-    });
-    
-    editBtn.innerHTML = '<i class="fas fa-edit" aria-hidden="true"></i> Edit Profile';
-    editBtn.className = 'btn btn-primary';
-    actions.style.display = 'none';
-    app.isEditingProfile = false;
+function closeProfileModal() {
+    document.getElementById('profileModal').classList.remove('active');
 }
 
-function saveProfile() {
-    const formData = new FormData(elements.profileForm);
-    const bankingFormData = new FormData(document.getElementById('bankingForm'));
+function handleProfileUpdate(e) {
+    e.preventDefault();
     
-    // Update user object
-    app.user.firstName = formData.get('firstName');
-    app.user.lastName = formData.get('lastName');
-    app.user.phone = formData.get('phone');
-    app.user.course = formData.get('course');
-    app.user.bankName = bankingFormData.get('bankName');
-    app.user.accountNumber = bankingFormData.get('accountNumber');
-    app.user.accountHolder = bankingFormData.get('accountHolder');
-    app.user.name = `${app.user.firstName} ${app.user.lastName}`;
+    // Update profile data
+    studentProfile.name = document.getElementById('editName').value;
+    studentProfile.email = document.getElementById('editEmail').value;
+    studentProfile.phone = document.getElementById('editPhone').value;
+    studentProfile.address = document.getElementById('editAddress').value;
     
-    // Save to localStorage
-    saveToLocalStorage('userProfile', app.user);
+    // Update UI
+    updateProfileDisplay();
     
-    // Update welcome message
-    const welcomeMessage = document.querySelector('.welcome-section h2');
-    if (welcomeMessage) {
-        welcomeMessage.textContent = `Welcome back, ${app.user.firstName}!`;
-    }
+    // Close modal
+    closeProfileModal();
     
-    // Exit edit mode
-    cancelEditProfile();
+    // Save to storage
+    saveToStorage();
     
+    // Show success message
     showToast('Profile updated successfully!', 'success');
 }
 
-function handleProfileSubmission(e) {
-    e.preventDefault();
-    saveProfile();
+function updateProfileDisplay() {
+    document.getElementById('studentName').textContent = studentProfile.name;
+    document.getElementById('studentId').textContent = studentProfile.id;
+    document.getElementById('studentCourse').textContent = studentProfile.course;
+    document.getElementById('studentEmail').textContent = studentProfile.email;
+    document.getElementById('studentPhone').textContent = studentProfile.phone;
+    document.getElementById('studentAddress').textContent = studentProfile.address;
 }
 
-// Transaction and claims data management
-function loadSampleTransactions() {
-    app.transactions = [
-        {
-            id: 1,
-            date: '2025-07-10',
-            type: 'fees',
-            description: 'Semester 2 Tuition Fee',
-            amount: -4200,
-            status: 'completed'
-        },
-        {
-            id: 2,
-            date: '2025-07-09',
-            type: 'aid',
-            description: 'Financial Aid Disbursement',
-            amount: 3500,
-            status: 'completed'
-        },
-        {
-            id: 3,
-            date: '2025-07-08',
-            type: 'fees',
-            description: 'Student Services Fee',
-            amount: -250,
-            status: 'completed'
-        },
-        {
-            id: 4,
-            date: '2025-07-07',
-            type: 'claims',
-            description: 'Textbook Reimbursement',
-            amount: 150,
-            status: 'processing'
-        },
-        {
-            id: 5,
-            date: '2025-07-05',
-            type: 'fees',
-            description: 'Lab Fee - Engineering',
-            amount: -300,
-            status: 'completed'
-        }
-    ];
-}
-
-function loadSampleClaims() {
-    app.claims = [
-        {
-            id: 1,
-            type: 'textbook',
-            amount: 150,
-            description: 'Engineering Mathematics textbook for EG2401',
-            status: 'approved',
-            submittedDate: '2025-07-07T10:30:00Z',
-            submittedBy: app.user.name
-        },
-        {
-            id: 2,
-            type: 'transport',
-            amount: 45,
-            description: 'Monthly transport pass for July 2025',
-            status: 'pending',
-            submittedDate: '2025-07-09T14:15:00Z',
-            submittedBy: app.user.name
-        },
-        {
-            id: 3,
-            type: 'meal',
-            amount: 25,
-            description: 'Project team dinner during late study session',
-            status: 'rejected',
-            submittedDate: '2025-07-06T18:45:00Z',
-            submittedBy: app.user.name
-        }
-    ];
-}
-
-function loadSampleApplications() {
-    app.scholarshipApplications = [
-        {
-            id: 1,
-            type: 'merit',
-            gpa: 3.8,
-            householdIncome: 2500,
-            personalStatement: 'I have consistently maintained excellent academic performance...',
-            status: 'under_review',
-            submittedDate: '2025-07-01T10:30:00Z',
-            submittedBy: app.user.name,
-            amount: 2000
-        },
-        {
-            id: 2,
-            type: 'bursary',
-            gpa: 3.2,
-            householdIncome: 1800,
-            personalStatement: 'Due to my family\'s financial circumstances...',
-            status: 'approved',
-            submittedDate: '2025-06-15T14:20:00Z',
-            submittedBy: app.user.name,
-            amount: 1500
-        }
-    ];
-}
-
-// Data loading and updating
-function loadTabData(tabName) {
-    switch (tabName) {
-        case 'transactions':
-            updateTransactionsList();
-            break;
-        case 'claims':
-            updateClaimsList();
-            break;
-        case 'scholarships':
-            updateApplicationsList();
-            break;
-        case 'fees':
-        case 'aid':
-        case 'profile':
-        case 'dashboard':
-            // These tabs have static content or are handled elsewhere
-            break;
-        default:
-            break;
+// Chat functionality
+function initializeChat() {
+    const chatBubble = document.getElementById('chatBubble');
+    const chatWindow = document.getElementById('chatWindow');
+    const closeChat = document.getElementById('closeChat');
+    
+    if (chatBubble) {
+        chatBubble.addEventListener('click', function() {
+            chatWindow.classList.toggle('active');
+        });
+    }
+    
+    if (closeChat) {
+        closeChat.addEventListener('click', function() {
+            chatWindow.classList.remove('active');
+        });
     }
 }
 
-function loadInitialData() {
-    // This would typically fetch data from an API
-    updateTransactionsList();
-    updateClaimsList();
+function sendChatMessage() {
+    const input = document.getElementById('chatInputField');
+    const messagesContainer = document.getElementById('chatMessages');
+    
+    const message = input.value.trim();
+    if (!message) return;
+    
+    // Add user message
+    const userMessage = document.createElement('div');
+    userMessage.className = 'message user-message';
+    userMessage.innerHTML = `<p>${message}</p>`;
+    messagesContainer.appendChild(userMessage);
+    
+    // Clear input
+    input.value = '';
+    
+    // Simulate bot response
+    setTimeout(() => {
+        const botMessage = document.createElement('div');
+        botMessage.className = 'message bot-message';
+        botMessage.innerHTML = `<p>${getBotResponse(message)}</p>`;
+        messagesContainer.appendChild(botMessage);
+        
+        // Scroll to bottom
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }, 1000);
+    
+    // Scroll to bottom
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
-function updateTransactionsList() {
-    if (!elements.transactionList) return;
+function getBotResponse(userMessage) {
+    const message = userMessage.toLowerCase();
     
-    const filteredTransactions = getFilteredTransactions();
-    
-    if (filteredTransactions.length === 0) {
-        elements.transactionList.innerHTML = `
-            <div class="empty-state">
-                <i class="fas fa-inbox" aria-hidden="true"></i>
-                <h3>No transactions found</h3>
-                <p>Try adjusting your filters or search terms.</p>
-            </div>
-        `;
-        return;
+    if (message.includes('fee') || message.includes('payment')) {
+        return 'Your current semester fees are fully paid. For payment history or upcoming fees, check the School Fees section.';
+    } else if (message.includes('claim') || message.includes('reimburs')) {
+        return 'You can submit claims for medical expenses, transportation, or equipment. Go to the Claims section to submit a new claim.';
+    } else if (message.includes('scholarship') || message.includes('bursary')) {
+        return 'You currently have an active Merit Scholarship worth $2,000. Check the Scholarships section for more opportunities.';
+    } else if (message.includes('balance') || message.includes('money')) {
+        return 'Your current account balance is $1,250.30. You can view detailed transactions in the Transactions section.';
+    } else if (message.includes('help') || message.includes('support')) {
+        return 'I can help you with questions about fees, claims, scholarships, and account balances. You can also contact our finance office directly at finance@rp.edu.sg.';
+    } else {
+        return 'Thank you for your message. For specific financial queries, please visit the relevant sections in your dashboard or contact our finance office at finance@rp.edu.sg.';
     }
+}
+
+// PDF Statement Generation
+function downloadStatement() {
+    try {
+        // Create a new jsPDF instance
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        // Add header
+        doc.setFontSize(20);
+        doc.setTextColor(30, 132, 73); // RP Green
+        doc.text('RPay Financial Statement', 20, 30);
+        
+        // Add student info
+        doc.setFontSize(12);
+        doc.setTextColor(0, 0, 0);
+        doc.text(`Student: ${studentProfile.name}`, 20, 50);
+        doc.text(`Student ID: ${studentProfile.id}`, 20, 60);
+        doc.text(`Course: ${studentProfile.course}`, 20, 70);
+        doc.text(`Statement Date: ${formatDate(new Date().toISOString().split('T')[0])}`, 20, 80);
+        
+        // Add line
+        doc.line(20, 90, 190, 90);
+        
+        // Add transactions
+        doc.setFontSize(14);
+        doc.text('Recent Transactions', 20, 105);
+        
+        let yPosition = 120;
+        const recentTransactions = transactions
+            .sort((a, b) => new Date(b.date) - new Date(a.date))
+            .slice(0, 10);
+        
+        doc.setFontSize(10);
+        recentTransactions.forEach(transaction => {
+            const sign = transaction.type === 'income' ? '+' : '-';
+            const amount = `${sign}$${transaction.amount.toFixed(2)}`;
+            
+            doc.text(formatDate(transaction.date), 20, yPosition);
+            doc.text(transaction.description, 50, yPosition);
+            doc.text(amount, 150, yPosition);
+            
+            yPosition += 10;
+        });
+        
+        // Add summary
+        doc.line(20, yPosition + 5, 190, yPosition + 5);
+        doc.setFontSize(12);
+        doc.text('Account Summary', 20, yPosition + 20);
+        doc.text('Total School Fees: $8,500.00 (Paid)', 20, yPosition + 35);
+        doc.text('Active Scholarships: $2,000.00', 20, yPosition + 45);
+        doc.text('Current Balance: $1,250.30', 20, yPosition + 55);
+        
+        // Save the PDF
+        doc.save('rpay-financial-statement.pdf');
+        
+        showToast('Financial statement downloaded successfully!', 'success');
+    } catch (error) {
+        console.error('Error generating PDF:', error);
+        showToast('Error generating PDF. Please try again.', 'error');
+    }
+}
+
+// Toast notifications
+function showToast(message, type = 'info') {
+    const toastContainer = document.getElementById('toastContainer');
     
-    const html = filteredTransactions.map(transaction => `
-        <div class="transaction-item">
-            <div class="transaction-icon">
-                <i class="fas ${getTransactionIcon(transaction.type)}" aria-hidden="true"></i>
-            </div>
-            <div class="transaction-details">
-                <h4>${transaction.description}</h4>
-                <p class="transaction-date">${formatDate(transaction.date)}</p>
-                <span class="transaction-type">${formatTransactionType(transaction.type)}</span>
-            </div>
-            <div class="transaction-amount ${transaction.amount > 0 ? 'positive' : 'negative'}">
-                ${transaction.amount > 0 ? '+' : ''}$${Math.abs(transaction.amount).toLocaleString()}
-            </div>
-            <div class="transaction-status">
-                <span class="status-badge ${transaction.status}">${formatStatus(transaction.status)}</span>
-            </div>
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <i class="fas ${getToastIcon(type)}"></i>
+            <span>${message}</span>
         </div>
-    `).join('');
+    `;
     
-    elements.transactionList.innerHTML = html;
+    toastContainer.appendChild(toast);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        toast.remove();
+    }, 5000);
 }
 
-function updateClaimsList() {
-    if (!elements.claimsList) return;
-    
-    if (app.claims.length === 0) {
-        elements.claimsList.innerHTML = `
-            <div class="empty-state">
-                <i class="fas fa-file-invoice" aria-hidden="true"></i>
-                <h3>No claims submitted</h3>
-                <p>Submit your first claim to get started.</p>
-                <button class="btn btn-primary" onclick="openModal('claimModal')">
-                    <i class="fas fa-plus" aria-hidden="true"></i> Submit New Claim
-                </button>
-            </div>
-        `;
-        return;
+function getToastIcon(type) {
+    switch (type) {
+        case 'success': return 'fa-check-circle';
+        case 'error': return 'fa-exclamation-circle';
+        case 'warning': return 'fa-exclamation-triangle';
+        default: return 'fa-info-circle';
     }
-    
-    const html = app.claims.map(claim => `
-        <div class="claim-item">
-            <div class="claim-header">
-                <h4>${formatClaimType(claim.type)} - $${claim.amount.toLocaleString()}</h4>
-                <span class="status-badge ${claim.status}">${formatStatus(claim.status)}</span>
-            </div>
-            <p class="claim-description">${claim.description}</p>
-            <div class="claim-meta">
-                <span class="claim-date">Submitted: ${formatDate(claim.submittedDate)}</span>
-                <span class="claim-id">ID: #${claim.id}</span>
-            </div>
-        </div>
-    `).join('');
-    
-    elements.claimsList.innerHTML = html;
-}
-
-function updateApplicationsList() {
-    if (!elements.applicationsList) return;
-    
-    if (app.scholarshipApplications.length === 0) {
-        elements.applicationsList.innerHTML = `
-            <div class="empty-state">
-                <i class="fas fa-award" aria-hidden="true"></i>
-                <h3>No applications submitted</h3>
-                <p>Apply for scholarships and bursaries to get started.</p>
-                <button class="btn btn-primary" onclick="openModal('scholarshipModal')">
-                    <i class="fas fa-plus" aria-hidden="true"></i> Apply Now
-                </button>
-            </div>
-        `;
-        return;
-    }
-    
-    const html = app.scholarshipApplications.map(application => `
-        <div class="application-item">
-            <div class="application-details">
-                <h4>${formatScholarshipType(application.type)}</h4>
-                <p class="application-date">Submitted: ${formatDate(application.submittedDate)}</p>
-            </div>
-            <div class="application-amount">$${application.amount.toLocaleString()}</div>
-            <div class="application-status">
-                <span class="status-badge ${application.status}">${formatApplicationStatus(application.status)}</span>
-            </div>
-        </div>
-    `).join('');
-    
-    elements.applicationsList.innerHTML = html;
-}
-
-// Filtering and searching
-function filterTransactions() {
-    updateTransactionsList();
-}
-
-function searchTransactions() {
-    updateTransactionsList();
-}
-
-function getFilteredTransactions() {
-    let filtered = [...app.transactions];
-    
-    // Apply type filter
-    const typeFilter = elements.transactionFilter?.value;
-    if (typeFilter && typeFilter !== 'all') {
-        filtered = filtered.filter(t => t.type === typeFilter);
-    }
-    
-    // Apply search filter
-    const searchTerm = elements.searchTransactions?.value?.toLowerCase();
-    if (searchTerm) {
-        filtered = filtered.filter(t => 
-            t.description.toLowerCase().includes(searchTerm) ||
-            t.type.toLowerCase().includes(searchTerm)
-        );
-    }
-    
-    // Sort by date (newest first)
-    filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
-    
-    return filtered;
 }
 
 // Utility functions
@@ -874,21 +550,68 @@ function formatDate(dateString) {
     });
 }
 
-function formatTransactionType(type) {
-    const types = {
-        fees: 'School Fees',
-        claims: 'Claim',
-        aid: 'Financial Aid'
-    };
-    return types[type] || type;
+function saveToStorage() {
+    localStorage.setItem('rpay_transactions', JSON.stringify(transactions));
+    localStorage.setItem('rpay_claims', JSON.stringify(claims));
+    localStorage.setItem('rpay_profile', JSON.stringify(studentProfile));
 }
 
-function formatClaimType(type) {
-    const types = {
-        textbook: 'Textbook Reimbursement',
-        transport: 'Transport Allowance',
-        meal: 'Meal Allowance',
-        other: 'Other'
-    };
-    return types[type] || type;
+function loadFromStorage() {
+    const storedTransactions = localStorage.getItem('rpay_transactions');
+    const storedClaims = localStorage.getItem('rpay_claims');
+    const storedProfile = localStorage.getItem('rpay_profile');
+    
+    if (storedTransactions) {
+        transactions = JSON.parse(storedTransactions);
+    }
+    
+    if (storedClaims) {
+        claims = JSON.parse(storedClaims);
+    }
+    
+    if (storedProfile) {
+        studentProfile = JSON.parse(storedProfile);
+        updateProfileDisplay();
+    }
 }
+
+// Close modals when clicking outside
+document.addEventListener('click', function(e) {
+    const profileModal = document.getElementById('profileModal');
+    
+    if (e.target === profileModal) {
+        closeProfileModal();
+    }
+});
+
+// Keyboard accessibility
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        // Close any open modals
+        closeProfileModal();
+        
+        // Close chat window
+        const chatWindow = document.getElementById('chatWindow');
+        if (chatWindow.classList.contains('active')) {
+            chatWindow.classList.remove('active');
+        }
+    }
+});
+
+// Add keyboard navigation for tabs
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.key >= '1' && e.key <= '6') {
+        e.preventDefault();
+        const tabs = ['dashboard', 'school-fees', 'claims', 'scholarships', 'transactions', 'profile'];
+        const tabIndex = parseInt(e.key) - 1;
+        if (tabs[tabIndex]) {
+            switchTab(tabs[tabIndex]);
+        }
+    }
+});
+
+// Export functions for global use
+window.switchTab = switchTab;
+window.editProfile = editProfile;
+window.closeProfileModal = closeProfileModal;
+window.downloadStatement = downloadStatement;
