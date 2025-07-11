@@ -120,8 +120,15 @@ body {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Cards */
@@ -452,8 +459,15 @@ body {
 }
 
 @keyframes slideUp {
-    from { transform: translateY(100%); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
 .chat-header {
@@ -611,8 +625,15 @@ body {
 }
 
 @keyframes slideInRight {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
 }
 
 /* Responsive Design */
@@ -620,7 +641,7 @@ body {
     .nav-toggle {
         display: block;
     }
-    
+
     .nav-list {
         position: absolute;
         top: 100%;
@@ -634,20 +655,20 @@ body {
         visibility: hidden;
         transition: var(--transition);
     }
-    
+
     .nav-list.active {
         transform: translateY(0);
         opacity: 1;
         visibility: visible;
     }
-    
+
     .nav-btn {
         width: 100%;
         text-align: left;
         border-radius: 0;
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
-    
+
     .dashboard-grid,
     .fees-grid,
     .claims-grid,
@@ -655,24 +676,24 @@ body {
     .profile-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .chat-window {
         width: calc(100vw - 2rem);
         right: 1rem;
         left: 1rem;
     }
-    
+
     .modal-content {
         width: 95%;
         margin: 1rem;
     }
-    
+
     .field-value {
         flex-direction: column;
         align-items: flex-start;
         gap: 0.5rem;
     }
-    
+
     .modal-actions {
         flex-direction: column;
     }
@@ -683,27 +704,27 @@ body {
         margin: 1rem auto;
         padding: 0 0.5rem;
     }
-    
+
     .card {
         padding: 1rem;
     }
-    
+
     .nav-brand h1 {
         font-size: 1.2rem;
     }
-    
+
     .logo {
         width: 40px;
         height: 40px;
     }
-    
+
     .chat-bubble {
         width: 50px;
         height: 50px;
         bottom: 1rem;
         right: 1rem;
     }
-    
+
     .chat-icon {
         font-size: 1.2rem;
     }
@@ -737,6 +758,7 @@ textarea:focus {
 
 /* Print styles */
 @media print {
+
     .navbar,
     .chat-bubble,
     .chat-window,
@@ -744,12 +766,12 @@ textarea:focus {
     .toast-container {
         display: none !important;
     }
-    
+
     .main-content {
         margin: 0;
         max-width: none;
     }
-    
+
     .card {
         box-shadow: none;
         border: 1px solid var(--border-color);

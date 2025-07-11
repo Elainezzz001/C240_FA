@@ -32,7 +32,7 @@ class RPay {
                 paymentReminders: true
             }
         };
-        
+
         const saved = localStorage.getItem('rpay_student_data');
         return saved ? { ...defaultData, ...JSON.parse(saved) } : defaultData;
     }
@@ -84,7 +84,7 @@ class RPay {
                 category: 'Claims'
             }
         ];
-        
+
         return transactions.sort((a, b) => b.date - a.date);
     }
 
@@ -93,7 +93,7 @@ class RPay {
         // Navigation toggle for mobile
         const navToggle = document.querySelector('.nav-toggle');
         const navList = document.querySelector('.nav-list');
-        
+
         if (navToggle && navList) {
             navToggle.addEventListener('click', () => {
                 navList.classList.toggle('active');
@@ -127,7 +127,7 @@ class RPay {
         navBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 const targetTab = btn.getAttribute('data-tab');
-                
+
                 // Update active nav button
                 navBtns.forEach(b => {
                     b.classList.remove('active');
@@ -140,7 +140,7 @@ class RPay {
                 tabContents.forEach(content => {
                     content.classList.remove('active');
                 });
-                
+
                 const targetContent = document.getElementById(targetTab);
                 if (targetContent) {
                     targetContent.classList.add('active');
@@ -181,7 +181,7 @@ class RPay {
                 if (message) {
                     this.addChatMessage(message, 'user');
                     chatInput.value = '';
-                    
+
                     // Simulate bot response
                     setTimeout(() => {
                         this.handleBotResponse(message);
@@ -205,7 +205,7 @@ class RPay {
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${sender}-message`;
         messageDiv.innerHTML = `<p>${message}</p>`;
-        
+
         chatMessages.appendChild(messageDiv);
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
@@ -270,7 +270,7 @@ class RPay {
         const modal = document.getElementById('editModal');
         const editLabel = document.getElementById('editLabel');
         const editInput = document.getElementById('editInput');
-        
+
         if (!modal || !editLabel || !editInput) return;
 
         const fieldLabels = {
@@ -284,7 +284,7 @@ class RPay {
         editLabel.textContent = fieldLabels[field] || field;
         editInput.value = this.studentData[field] || '';
         editInput.setAttribute('data-field', field);
-        
+
         modal.classList.add('active');
         modal.setAttribute('aria-hidden', 'false');
         editInput.focus();
@@ -317,7 +317,7 @@ class RPay {
     // Forms Setup
     setupForms() {
         const claimForm = document.getElementById('claimForm');
-        
+
         claimForm?.addEventListener('submit', (e) => {
             e.preventDefault();
             this.submitClaim();
@@ -364,7 +364,7 @@ class RPay {
     // Student Profile Management
     loadStudentProfile() {
         const fields = ['name', 'studentId', 'course', 'email', 'phone'];
-        
+
         fields.forEach(field => {
             const element = document.getElementById(`display${field.charAt(0).toUpperCase() + field.slice(1)}`);
             if (element) {
@@ -399,7 +399,7 @@ class RPay {
         if (!container) return;
 
         container.innerHTML = '';
-        
+
         this.transactions.forEach(transaction => {
             const transactionElement = this.createTransactionElement(transaction);
             container.appendChild(transactionElement);
@@ -409,11 +409,11 @@ class RPay {
     createTransactionElement(transaction) {
         const div = document.createElement('div');
         div.className = 'activity-item';
-        
+
         const typeClass = transaction.type === 'income' ? 'income' : 'expense';
         const typeSymbol = transaction.type === 'income' ? '+' : '-';
         const amountPrefix = transaction.type === 'income' ? '+' : '-';
-        
+
         div.innerHTML = `
             <span class="activity-type ${typeClass}">${typeSymbol}</span>
             <div class="activity-details">
@@ -422,7 +422,7 @@ class RPay {
             </div>
             <span class="activity-amount">${amountPrefix}$${transaction.amount.toFixed(2)}</span>
         `;
-        
+
         return div;
     }
 
@@ -462,20 +462,20 @@ class RPay {
     // PDF Generation
     async downloadStatement() {
         this.showToast('Preparing your statement...', 'info');
-        
+
         try {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            
+
             // Header
             doc.setFontSize(20);
             doc.text('RPay Financial Statement', 20, 30);
-            
+
             doc.setFontSize(12);
             doc.text(`Student: ${this.studentData.name}`, 20, 50);
             doc.text(`Student ID: ${this.studentData.studentId}`, 20, 60);
             doc.text(`Generated: ${new Date().toLocaleDateString()}`, 20, 70);
-            
+
             // Fee Summary
             doc.setFontSize(16);
             doc.text('Fee Summary', 20, 90);
@@ -484,12 +484,12 @@ class RPay {
             doc.text('Student Services: $150.00', 20, 115);
             doc.text('Technology Fee: $100.00', 20, 125);
             doc.text('Total Outstanding: $2,450.00', 20, 140);
-            
+
             // Recent Transactions
             doc.setFontSize(16);
             doc.text('Recent Transactions', 20, 160);
             doc.setFontSize(10);
-            
+
             let yPosition = 175;
             this.transactions.slice(0, 10).forEach(transaction => {
                 const type = transaction.type === 'income' ? '+' : '-';
@@ -497,10 +497,10 @@ class RPay {
                 doc.text(line, 20, yPosition);
                 yPosition += 10;
             });
-            
+
             doc.save(`RPay_Statement_${this.studentData.studentId}_${new Date().toISOString().split('T')[0]}.pdf`);
             this.showToast('Statement downloaded successfully!', 'success');
-            
+
         } catch (error) {
             console.error('PDF generation error:', error);
             this.showToast('Error generating statement. Please try again.', 'error');
@@ -515,9 +515,9 @@ class RPay {
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
         toast.textContent = message;
-        
+
         container.appendChild(toast);
-        
+
         // Auto remove after 5 seconds
         setTimeout(() => {
             if (toast.parentNode) {
@@ -546,14 +546,14 @@ class RPay {
 // Initialize the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.rpayApp = new RPay();
-    
+
     // Add accessibility improvements
     document.addEventListener('keydown', (e) => {
         // Escape key closes modals and chat
         if (e.key === 'Escape') {
             const modal = document.querySelector('.modal.active');
             const chat = document.querySelector('.chat-window.active');
-            
+
             if (modal) {
                 window.rpayApp.closeModal();
             } else if (chat) {
@@ -562,10 +562,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
-    
+
     // Handle focus management for better accessibility
     const focusableElements = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
-    
+
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Tab') {
             const modal = document.querySelector('.modal.active');
@@ -573,7 +573,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const focusable = modal.querySelectorAll(focusableElements);
                 const firstFocusable = focusable[0];
                 const lastFocusable = focusable[focusable.length - 1];
-                
+
                 if (e.shiftKey) {
                     if (document.activeElement === firstFocusable) {
                         lastFocusable.focus();
