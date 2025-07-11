@@ -290,7 +290,8 @@ class RPay {
             'help': 'I can help you with fees, scholarships, claims, payments, and account information. What would you like to know?',
             'default': 'Thank you for your message. For specific inquiries, please contact our support team at support@rp.edu.sg or call +65 6510 3000.',
             'how do i submit a claim': 'To submit a claim, go to the Claims section and fill in the required fields.',
-            'gpa': 'Your GPA is used in scholarship applications. Please ensure it’s updated in your profile.'
+            'gpa': 'Your GPA is used in scholarship applications. Please ensure it’s updated in your profile.',
+            'bursary': 'Please visit the Scholarships & Bursary section for information on available bursaries and application procedures.'
         };
 
         const lowerMessage = userMessage.toLowerCase();
