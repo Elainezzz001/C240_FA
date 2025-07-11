@@ -458,6 +458,68 @@
         </div>
     </div>
 
+    <!-- Floating Chat Bubble -->
+    <div id="chatBubble" class="chat-bubble" role="button" aria-label="Open chat support" tabindex="0">
+        <i class="fas fa-comment-dots" aria-hidden="true"></i>
+    </div>
+
+    <!-- Chatbot Interface -->
+    <div id="chatWindow" class="chat-window" role="dialog" aria-labelledby="chatTitle" aria-hidden="true">
+        <div class="chat-header">
+            <div class="chat-title-section">
+                <div class="chat-avatar">
+                    <i class="fas fa-robot" aria-hidden="true"></i>
+                </div>
+                <div class="chat-info">
+                    <h3 id="chatTitle">RPay Assistant</h3>
+                    <span class="chat-status online">Online</span>
+                </div>
+            </div>
+            <button class="chat-close" onclick="toggleChat()" aria-label="Close chat">
+                <i class="fas fa-times" aria-hidden="true"></i>
+            </button>
+        </div>
+        
+        <div class="chat-messages" id="chatMessages">
+            <div class="chat-message bot">
+                <div class="message-avatar">
+                    <i class="fas fa-robot" aria-hidden="true"></i>
+                </div>
+                <div class="message-content">
+                    <p>Hello! I'm your RPay Financial Assistant. How can I help you today?</p>
+                    <span class="message-time">Just now</span>
+                </div>
+            </div>
+            
+            <div class="chat-suggestions">
+                <div class="suggestion-chip" onclick="sendQuickMessage('How do I submit a claim?')">
+                    How do I submit a claim?
+                </div>
+                <div class="suggestion-chip" onclick="sendQuickMessage('Check my balance')">
+                    Check my balance
+                </div>
+                <div class="suggestion-chip" onclick="sendQuickMessage('Scholarship information')">
+                    Scholarship information
+                </div>
+            </div>
+        </div>
+        
+        <div class="chat-input-container">
+            <form id="chatForm" class="chat-input-form">
+                <input 
+                    type="text" 
+                    id="chatInput" 
+                    placeholder="Type your message..." 
+                    aria-label="Type your message"
+                    autocomplete="off"
+                >
+                <button type="submit" class="chat-send-btn" aria-label="Send message">
+                    <i class="fas fa-paper-plane" aria-hidden="true"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
     <script src="js/app.js"></script>
 </body>
 </html>

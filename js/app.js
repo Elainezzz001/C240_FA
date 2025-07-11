@@ -42,7 +42,12 @@ const elements = {
     searchTransactions: document.getElementById('searchTransactions'),
     transactionList: document.getElementById('transactionList'),
     claimsList: document.getElementById('claimsList'),
-    applicationsList: document.getElementById('applicationsList')
+    applicationsList: document.getElementById('applicationsList'),
+    chatBubble: document.getElementById('chatBubble'),
+    chatWindow: document.getElementById('chatWindow'),
+    chatMessages: document.getElementById('chatMessages'),
+    chatForm: document.getElementById('chatForm'),
+    chatInput: document.getElementById('chatInput')
 };
 
 // Initialize application
@@ -73,6 +78,9 @@ function initializeApp() {
     
     // Load user profile from localStorage
     loadUserProfile();
+    
+    // Initialize chat
+    initializeChat();
 }
 
 // Event listeners setup
@@ -126,6 +134,47 @@ function setupEventListeners() {
             if (openModal) {
                 closeModal(openModal.id);
             }
+        }
+    });
+    
+    // Chat bubble click handler
+    if (elements.chatBubble) {
+        elements.chatBubble.addEventListener('click', toggleChat);
+        elements.chatBubble.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                toggleChat();
+            }
+        });
+    }
+    
+    // Chat form submission
+    if (elements.chatForm) {
+        elements.chatForm.addEventListener('submit', handleChatSubmit);
+    }
+    
+    // Auto-resize chat input
+    if (elements.chatInput) {
+        elements.chatInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+        });
+    }
+    
+    // Close chat when clicking outside
+    document.addEventListener('click', function(e) {
+        const chatWindow = document.getElementById('chatWindow');
+        const chatBubble = document.getElementById('chatBubble');
+        
+        if (isChatOpen && chatWindow && !chatWindow.contains(e.target) && !chatBubble.contains(e.target)) {
+            toggleChat();
+        }
+    });
+    
+    // Escape key to close chat
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && isChatOpen) {
+            toggleChat();
         }
     });
 }
@@ -842,261 +891,4 @@ function formatClaimType(type) {
         other: 'Other'
     };
     return types[type] || type;
-}
-
-function formatStatus(status) {
-    const statuses = {
-        completed: 'Completed',
-        processing: 'Processing',
-        pending: 'Pending',
-        approved: 'Approved',
-        rejected: 'Rejected'
-    };
-    return statuses[status] || status;
-}
-
-function getTransactionIcon(type) {
-    const icons = {
-        fees: 'fa-graduation-cap',
-        claims: 'fa-receipt',
-        aid: 'fa-hand-holding-usd'
-    };
-    return icons[type] || 'fa-circle';
-}
-
-function formatScholarshipType(type) {
-    const types = {
-        merit: 'RP Merit Scholarship',
-        bursary: 'Financial Assistance Bursary',
-        sports: 'Sports Excellence Award',
-        community: 'Community Service Award'
-    };
-    return types[type] || type;
-}
-
-function formatApplicationStatus(status) {
-    const statuses = {
-        submitted: 'Submitted',
-        under_review: 'Under Review',
-        approved: 'Approved',
-        rejected: 'Rejected'
-    };
-    return statuses[status] || status;
-}
-
-function updatePendingClaimsAmount() {
-    const pendingAmount = app.claims
-        .filter(claim => claim.status === 'pending')
-        .reduce((sum, claim) => sum + claim.amount, 0);
-    
-    app.user.pendingClaims = pendingAmount;
-    
-    // Update dashboard card
-    const pendingCard = document.querySelector('[data-target="1250"]');
-    if (pendingCard) {
-        pendingCard.setAttribute('data-target', pendingAmount);
-        pendingCard.textContent = `$${pendingAmount.toLocaleString()}`;
-    }
-}
-
-// Toast notifications
-function showToast(message, type = 'success') {
-    if (!elements.toast) return;
-    
-    const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
-    const iconColor = type === 'success' ? 'var(--success)' : 'var(--error)';
-    
-    elements.toast.querySelector('.toast-icon').className = `toast-icon fas ${icon}`;
-    elements.toast.querySelector('.toast-icon').style.color = iconColor;
-    elements.toast.querySelector('.toast-message').textContent = message;
-    
-    elements.toast.classList.add('show');
-    
-    setTimeout(() => {
-        elements.toast.classList.remove('show');
-    }, 3000);
-}
-
-// Utility functions
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
-
-// Quick action functions
-function downloadStatement(type = 'all') {
-    showToast('Preparing your statement for download...', 'success');
-    
-    setTimeout(() => {
-        let content = '';
-        let filename = '';
-        
-        if (type === 'fees') {
-            content = generateFeeStatement();
-            filename = `rpay-fee-statement-${new Date().toISOString().split('T')[0]}.txt`;
-        } else {
-            content = generateFullStatement();
-            filename = `rpay-financial-statement-${new Date().toISOString().split('T')[0]}.txt`;
-        }
-        
-        // Create and download file
-        const blob = new Blob([content], { type: 'text/plain' });
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = filename;
-        link.click();
-        window.URL.revokeObjectURL(url);
-        
-        showToast('Statement downloaded successfully!', 'success');
-    }, 1000);
-}
-
-function generateFeeStatement() {
-    return `
-RPay Financial Admin - Fee Statement
-Generated on: ${new Date().toLocaleDateString('en-SG')}
-Student: ${app.user.name}
-Student ID: ${app.user.studentId}
-Course: ${app.user.course}
-
-==========================================
-CURRENT SEMESTER FEES BREAKDOWN
-==========================================
-Tuition Fee                    $4,200.00
-Student Services Fee             $250.00
-Lab Fee - Engineering            $300.00
-Technology Fee                   $150.00
-==========================================
-Total Amount                   $4,900.00
-Status: FULLY PAID
-Payment Date: July 5, 2025
-==========================================
-
-Contact Information:
-Email: fintech@rp.edu.sg
-Phone: +65 6510 3000
-Office Hours: Mon-Fri 9AM-5PM
-`;
-}
-
-function generateFullStatement() {
-    const transactionHistory = app.transactions.map(t => 
-        `${t.date}\t${t.description}\t${t.amount > 0 ? '+' : ''}$${t.amount}\t${t.status}`
-    ).join('\n');
-    
-    const claimsHistory = app.claims.map(c => 
-        `${c.submittedDate.split('T')[0]}\t${formatClaimType(c.type)}\t$${c.amount}\t${c.status}`
-    ).join('\n');
-    
-    return `
-RPay Financial Admin - Complete Financial Statement
-Generated on: ${new Date().toLocaleDateString('en-SG')}
-Student: ${app.user.name}
-Student ID: ${app.user.studentId}
-Course: ${app.user.course}
-
-==========================================
-FINANCIAL SUMMARY
-==========================================
-Total Fees Paid:              $${app.user.totalFees.toLocaleString()}
-Pending Claims:                $${app.user.pendingClaims.toLocaleString()}
-Financial Aid Received:        $${app.user.financialAid.toLocaleString()}
-Current Balance:               $${app.user.balance.toLocaleString()}
-
-==========================================
-TRANSACTION HISTORY
-==========================================
-Date\t\tDescription\t\tAmount\t\tStatus
-${transactionHistory}
-
-==========================================
-CLAIMS HISTORY
-==========================================
-Date\t\tType\t\tAmount\t\tStatus
-${claimsHistory}
-
-==========================================
-Contact Information:
-Email: fintech@rp.edu.sg
-Phone: +65 6510 3000
-Office Hours: Mon-Fri 9AM-5PM
-`;
-}
-
-// LocalStorage functions
-function saveToLocalStorage(key, data) {
-    try {
-        localStorage.setItem(`rpay_${key}`, JSON.stringify(data));
-    } catch (e) {
-        console.warn('Failed to save to localStorage:', e);
-    }
-}
-
-function loadFromLocalStorage(key) {
-    try {
-        const data = localStorage.getItem(`rpay_${key}`);
-        return data ? JSON.parse(data) : null;
-    } catch (e) {
-        console.warn('Failed to load from localStorage:', e);
-        return null;
-    }
-}
-
-function loadUserProfile() {
-    const savedProfile = loadFromLocalStorage('userProfile');
-    if (savedProfile) {
-        app.user = { ...app.user, ...savedProfile };
-        
-        // Update form fields
-        const profileInputs = document.querySelectorAll('#profileForm input, #bankingForm input');
-        profileInputs.forEach(input => {
-            const fieldName = input.name;
-            if (app.user[fieldName]) {
-                input.value = app.user[fieldName];
-            }
-        });
-        
-        // Update welcome message
-        const welcomeMessage = document.querySelector('.welcome-section h2');
-        if (welcomeMessage) {
-            welcomeMessage.textContent = `Welcome back, ${app.user.firstName || app.user.name}!`;
-        }
-    }
-    
-    // Load saved applications
-    const savedApplications = loadFromLocalStorage('scholarshipApplications');
-    if (savedApplications) {
-        app.scholarshipApplications = savedApplications;
-    }
-}
-
-// Error handling
-window.addEventListener('error', function(e) {
-    console.error('Application error:', e.error);
-    showToast('An error occurred. Please refresh the page.', 'error');
-});
-
-// Performance monitoring
-if ('performance' in window) {
-    window.addEventListener('load', function() {
-        setTimeout(() => {
-            const perfData = performance.getEntriesByType('navigation')[0];
-            if (perfData) {
-                console.log(`Page loaded in ${perfData.loadEventEnd - perfData.loadEventStart}ms`);
-            }
-        }, 0);
-    });
-}
-
-// Export for testing (if needed)
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { app, formatDate, formatStatus };
 }
