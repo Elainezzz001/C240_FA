@@ -27,14 +27,20 @@
                     <li><a href="#dashboard" class="nav-link active" data-tab="dashboard" aria-current="page">
                         <i class="fas fa-tachometer-alt" aria-hidden="true"></i> Dashboard
                     </a></li>
-                    <li><a href="#transactions" class="nav-link" data-tab="transactions">
-                        <i class="fas fa-exchange-alt" aria-hidden="true"></i> Transactions
+                    <li><a href="#fees" class="nav-link" data-tab="fees">
+                        <i class="fas fa-graduation-cap" aria-hidden="true"></i> School Fees
+                    </a></li>
+                    <li><a href="#scholarships" class="nav-link" data-tab="scholarships">
+                        <i class="fas fa-award" aria-hidden="true"></i> Scholarships & Bursaries
                     </a></li>
                     <li><a href="#claims" class="nav-link" data-tab="claims">
                         <i class="fas fa-file-invoice-dollar" aria-hidden="true"></i> Claims
                     </a></li>
-                    <li><a href="#aid" class="nav-link" data-tab="aid">
-                        <i class="fas fa-hand-holding-usd" aria-hidden="true"></i> Financial Aid
+                    <li><a href="#transactions" class="nav-link" data-tab="transactions">
+                        <i class="fas fa-exchange-alt" aria-hidden="true"></i> Transaction History
+                    </a></li>
+                    <li><a href="#profile" class="nav-link" data-tab="profile">
+                        <i class="fas fa-user" aria-hidden="true"></i> My Profile
                     </a></li>
                 </ul>
             </nav>
@@ -113,12 +119,116 @@
                     <button class="btn btn-primary" onclick="openModal('claimModal')" aria-label="Submit new claim">
                         <i class="fas fa-plus" aria-hidden="true"></i> Submit New Claim
                     </button>
-                    <button class="btn btn-secondary" onclick="downloadStatement()" aria-label="Download financial statement">
+                    <button class="btn btn-secondary" onclick="openModal('scholarshipModal')" aria-label="Apply for scholarship">
+                        <i class="fas fa-award" aria-hidden="true"></i> Apply for Aid
+                    </button>
+                    <button class="btn btn-outline" onclick="downloadStatement()" aria-label="Download financial statement">
                         <i class="fas fa-download" aria-hidden="true"></i> Download Statement
                     </button>
                     <button class="btn btn-outline" onclick="viewHelp()" aria-label="View help and support">
                         <i class="fas fa-question-circle" aria-hidden="true"></i> Help & Support
                     </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- School Fees Tab -->
+        <section id="fees" class="tab-content" role="tabpanel" aria-labelledby="fees-tab">
+            <div class="section-header">
+                <h2>School Fees Breakdown</h2>
+                <button class="btn btn-secondary" onclick="downloadStatement('fees')">
+                    <i class="fas fa-download" aria-hidden="true"></i> Download Fee Statement
+                </button>
+            </div>
+            <div class="fees-summary">
+                <div class="fee-card">
+                    <h3>Current Semester Fees</h3>
+                    <div class="fee-breakdown">
+                        <div class="fee-item">
+                            <span class="fee-label">Tuition Fee</span>
+                            <span class="fee-amount">$4,200.00</span>
+                        </div>
+                        <div class="fee-item">
+                            <span class="fee-label">Student Services Fee</span>
+                            <span class="fee-amount">$250.00</span>
+                        </div>
+                        <div class="fee-item">
+                            <span class="fee-label">Lab Fee - Engineering</span>
+                            <span class="fee-amount">$300.00</span>
+                        </div>
+                        <div class="fee-item">
+                            <span class="fee-label">Technology Fee</span>
+                            <span class="fee-amount">$150.00</span>
+                        </div>
+                        <div class="fee-item total">
+                            <span class="fee-label">Total Amount</span>
+                            <span class="fee-amount">$4,900.00</span>
+                        </div>
+                    </div>
+                    <div class="payment-status">
+                        <span class="status-badge completed">
+                            <i class="fas fa-check-circle" aria-hidden="true"></i> Fully Paid
+                        </span>
+                        <span class="payment-date">Paid on: July 5, 2025</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Scholarships & Bursaries Tab -->
+        <section id="scholarships" class="tab-content" role="tabpanel" aria-labelledby="scholarships-tab">
+            <div class="section-header">
+                <h2>Scholarships & Bursaries</h2>
+                <button class="btn btn-primary" onclick="openModal('scholarshipModal')">
+                    <i class="fas fa-plus" aria-hidden="true"></i> Apply for Aid
+                </button>
+            </div>
+            <div class="scholarships-grid">
+                <div class="scholarship-card available">
+                    <div class="scholarship-header">
+                        <h3>RP Merit Scholarship</h3>
+                        <span class="scholarship-amount">Up to $2,000</span>
+                    </div>
+                    <p class="scholarship-description">For students with outstanding academic performance and leadership qualities.</p>
+                    <div class="scholarship-criteria">
+                        <h4>Eligibility:</h4>
+                        <ul>
+                            <li>GPA 3.5 and above</li>
+                            <li>Active in co-curricular activities</li>
+                            <li>Singapore Citizen/PR</li>
+                        </ul>
+                    </div>
+                    <div class="scholarship-actions">
+                        <button class="btn btn-primary" onclick="applyScholarship('merit')">Apply Now</button>
+                        <span class="deadline">Deadline: Aug 31, 2025</span>
+                    </div>
+                </div>
+                
+                <div class="scholarship-card available">
+                    <div class="scholarship-header">
+                        <h3>Financial Assistance Bursary</h3>
+                        <span class="scholarship-amount">Up to $1,500</span>
+                    </div>
+                    <p class="scholarship-description">Need-based financial assistance for students from low-income families.</p>
+                    <div class="scholarship-criteria">
+                        <h4>Eligibility:</h4>
+                        <ul>
+                            <li>Household income ≤ $3,000</li>
+                            <li>Singapore Citizen</li>
+                            <li>Satisfactory academic progress</li>
+                        </ul>
+                    </div>
+                    <div class="scholarship-actions">
+                        <button class="btn btn-primary" onclick="applyScholarship('bursary')">Apply Now</button>
+                        <span class="deadline">Deadline: Sep 15, 2025</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="my-applications">
+                <h3>My Applications</h3>
+                <div class="applications-list" id="applicationsList">
+                    <!-- Dynamic content will be loaded here -->
                 </div>
             </div>
         </section>
@@ -173,6 +283,84 @@
                 </div>
             </div>
         </section>
+
+        <!-- My Profile Tab -->
+        <section id="profile" class="tab-content" role="tabpanel" aria-labelledby="profile-tab">
+            <div class="section-header">
+                <h2>My Profile</h2>
+                <button class="btn btn-primary" id="editProfileBtn" onclick="toggleEditProfile()">
+                    <i class="fas fa-edit" aria-hidden="true"></i> Edit Profile
+                </button>
+            </div>
+            <div class="profile-container">
+                <div class="profile-section">
+                    <h3>Personal Information</h3>
+                    <form id="profileForm" class="profile-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="firstName">First Name</label>
+                                <input type="text" id="firstName" name="firstName" value="John" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName">Last Name</label>
+                                <input type="text" id="lastName" name="lastName" value="Doe" readonly>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="email">Email Address</label>
+                                <input type="email" id="email" name="email" value="john.doe@student.rp.edu.sg" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Phone Number</label>
+                                <input type="tel" id="phone" name="phone" value="+65 9123 4567" readonly>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="studentId">Student ID</label>
+                                <input type="text" id="studentId" name="studentId" value="RP2021001234" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="course">Course</label>
+                                <input type="text" id="course" name="course" value="Diploma in Engineering Informatics" readonly>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="profile-section">
+                    <h3>Banking Information</h3>
+                    <form id="bankingForm" class="profile-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="bankName">Bank Name</label>
+                                <input type="text" id="bankName" name="bankName" value="DBS Bank" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="accountNumber">Account Number</label>
+                                <input type="text" id="accountNumber" name="accountNumber" value="****-****-1234" readonly>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="accountHolder">Account Holder Name</label>
+                                <input type="text" id="accountHolder" name="accountHolder" value="John Doe" readonly>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="profile-actions" style="display: none;" id="profileActions">
+                    <button class="btn btn-primary" onclick="saveProfile()">
+                        <i class="fas fa-save" aria-hidden="true"></i> Save Changes
+                    </button>
+                    <button class="btn btn-outline" onclick="cancelEditProfile()">
+                        <i class="fas fa-times" aria-hidden="true"></i> Cancel
+                    </button>
+                </div>
+            </div>
+        </section>
     </main>
 
     <!-- Submit Claim Modal -->
@@ -210,6 +398,53 @@
                 <div class="form-actions">
                     <button type="button" class="btn btn-outline" onclick="closeModal('claimModal')">Cancel</button>
                     <button type="submit" class="btn btn-primary">Submit Claim</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scholarship Application Modal -->
+    <div id="scholarshipModal" class="modal" role="dialog" aria-labelledby="scholarshipModalTitle" aria-hidden="true">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3 id="scholarshipModalTitle">Apply for Scholarship/Bursary</h3>
+                <button class="modal-close" onclick="closeModal('scholarshipModal')" aria-label="Close modal">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
+            </div>
+            <form id="scholarshipForm" class="scholarship-form">
+                <div class="form-group">
+                    <label for="scholarshipType">Scholarship/Bursary Type</label>
+                    <select id="scholarshipType" name="scholarshipType" required aria-required="true">
+                        <option value="">Select type</option>
+                        <option value="merit">RP Merit Scholarship</option>
+                        <option value="bursary">Financial Assistance Bursary</option>
+                        <option value="sports">Sports Excellence Award</option>
+                        <option value="community">Community Service Award</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="currentGPA">Current GPA</label>
+                        <input type="number" id="currentGPA" name="currentGPA" step="0.01" min="0" max="4.0" required aria-required="true">
+                    </div>
+                    <div class="form-group">
+                        <label for="householdIncome">Monthly Household Income (SGD)</label>
+                        <input type="number" id="householdIncome" name="householdIncome" min="0" required aria-required="true">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="personalStatement">Personal Statement</label>
+                    <textarea id="personalStatement" name="personalStatement" rows="4" placeholder="Please explain why you deserve this scholarship/bursary and how it will help you..." required aria-required="true"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="supportingDocs">Supporting Documents</label>
+                    <input type="file" id="supportingDocs" name="supportingDocs" accept=".pdf,.doc,.docx,.jpg,.png" multiple required aria-required="true">
+                    <small class="form-help">Upload academic transcripts, income statements, or other relevant documents</small>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('scholarshipModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Submit Application</button>
                 </div>
             </form>
         </div>

@@ -7,8 +7,19 @@ const app = {
     isLoading: false,
     transactions: [],
     claims: [],
+    scholarshipApplications: [],
+    isEditingProfile: false,
     user: {
-        name: 'Student',
+        name: 'John Doe',
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john.doe@student.rp.edu.sg',
+        phone: '+65 9123 4567',
+        studentId: 'RP2021001234',
+        course: 'Diploma in Engineering Informatics',
+        bankName: 'DBS Bank',
+        accountNumber: '****-****-1234',
+        accountHolder: 'John Doe',
         totalFees: 8450,
         pendingClaims: 1250,
         financialAid: 3500,
@@ -25,10 +36,13 @@ const elements = {
     toast: document.getElementById('toast'),
     dashboardCards: document.querySelectorAll('.card-amount'),
     claimForm: document.getElementById('claimForm'),
+    scholarshipForm: document.getElementById('scholarshipForm'),
+    profileForm: document.getElementById('profileForm'),
     transactionFilter: document.getElementById('transactionFilter'),
     searchTransactions: document.getElementById('searchTransactions'),
     transactionList: document.getElementById('transactionList'),
-    claimsList: document.getElementById('claimsList')
+    claimsList: document.getElementById('claimsList'),
+    applicationsList: document.getElementById('applicationsList')
 };
 
 // Initialize application
@@ -55,6 +69,10 @@ function initializeApp() {
     // Load sample data
     loadSampleTransactions();
     loadSampleClaims();
+    loadSampleApplications();
+    
+    // Load user profile from localStorage
+    loadUserProfile();
 }
 
 // Event listeners setup
@@ -72,6 +90,16 @@ function setupEventListeners() {
     // Claim form submission
     if (elements.claimForm) {
         elements.claimForm.addEventListener('submit', handleClaimSubmission);
+    }
+    
+    // Scholarship form submission
+    if (elements.scholarshipForm) {
+        elements.scholarshipForm.addEventListener('submit', handleScholarshipSubmission);
+    }
+    
+    // Profile form submission
+    if (elements.profileForm) {
+        elements.profileForm.addEventListener('submit', handleProfileSubmission);
     }
     
     // Transaction filtering
@@ -279,21 +307,40 @@ function validateClaimForm(data) {
     return true;
 }
 
-function showFormErrors(errors) {
+function showFormErrors(errors, formId) {
+    const form = document.getElementById(formId);
+    if (!form) return;
+    
     // Remove existing error messages
-    clearFormErrors(elements.claimForm);
+    clearFormErrors(form);
     
     // Add new error messages
+    const errorContainer = document.createElement('div');
+    errorContainer.className = 'form-errors';
+    errorContainer.style.cssText = `
+        background-color: rgba(231, 76, 60, 0.1);
+        border: 1px solid var(--error);
+        border-radius: var(--radius-md);
+        padding: var(--spacing-md);
+        margin-bottom: var(--spacing-lg);
+    `;
+    
+    const errorList = document.createElement('ul');
+    errorList.style.cssText = `
+        margin: 0;
+        padding-left: var(--spacing-lg);
+        color: var(--error);
+    `;
+    
     errors.forEach(error => {
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'form-error';
-        errorDiv.textContent = error;
-        errorDiv.style.color = 'var(--error)';
-        errorDiv.style.fontSize = 'var(--font-size-sm)';
-        errorDiv.style.marginTop = 'var(--spacing-xs)';
-        
-        elements.claimForm.insertBefore(errorDiv, elements.claimForm.querySelector('.form-actions'));
+        const errorItem = document.createElement('li');
+        errorItem.textContent = error;
+        errorItem.style.marginBottom = 'var(--spacing-xs)';
+        errorList.appendChild(errorItem);
     });
+    
+    errorContainer.appendChild(errorList);
+    form.insertBefore(errorContainer, form.querySelector('.form-actions'));
 }
 
 function clearFormErrors(form) {
@@ -326,6 +373,174 @@ function submitClaim(claimData) {
         submitBtn.disabled = false;
         
     }, 1500);
+}
+
+// Scholarship application handling
+function handleScholarshipSubmission(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const applicationData = {
+        id: Date.now(),
+        type: formData.get('scholarshipType'),
+        gpa: parseFloat(formData.get('currentGPA')),
+        householdIncome: parseFloat(formData.get('householdIncome')),
+        personalStatement: formData.get('personalStatement'),
+        supportingDocs: formData.get('supportingDocs'),
+        status: 'submitted',
+        submittedDate: new Date().toISOString(),
+        submittedBy: app.user.name
+    };
+    
+    // Validate form
+    if (validateScholarshipForm(applicationData)) {
+        submitScholarshipApplication(applicationData);
+    }
+}
+
+function validateScholarshipForm(data) {
+    const errors = [];
+    
+    if (!data.type) {
+        errors.push('Please select a scholarship/bursary type');
+    }
+    
+    if (!data.gpa || data.gpa < 0 || data.gpa > 4.0) {
+        errors.push('Please enter a valid GPA (0.0 - 4.0)');
+    }
+    
+    if (!data.householdIncome || data.householdIncome < 0) {
+        errors.push('Please enter a valid household income');
+    }
+    
+    if (!data.personalStatement || data.personalStatement.trim().length < 50) {
+        errors.push('Please provide a detailed personal statement (minimum 50 characters)');
+    }
+    
+    if (!data.supportingDocs) {
+        errors.push('Please upload supporting documents');
+    }
+    
+    if (errors.length > 0) {
+        showFormErrors(errors, 'scholarshipForm');
+        return false;
+    }
+    
+    return true;
+}
+
+function submitScholarshipApplication(applicationData) {
+    // Show loading state
+    const submitBtn = elements.scholarshipForm.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = 'Submitting...';
+    submitBtn.disabled = true;
+    
+    // Simulate API call
+    setTimeout(() => {
+        // Add to applications list
+        app.scholarshipApplications.unshift(applicationData);
+        
+        // Save to localStorage
+        saveToLocalStorage('scholarshipApplications', app.scholarshipApplications);
+        
+        // Update UI
+        updateApplicationsList();
+        
+        // Close modal and show success
+        closeModal('scholarshipModal');
+        showToast('Scholarship application submitted successfully!', 'success');
+        
+        // Reset button
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+        
+    }, 2000);
+}
+
+// Profile management
+function toggleEditProfile() {
+    const forms = document.querySelectorAll('.profile-form input, .profile-form select, .profile-form textarea');
+    const editBtn = document.getElementById('editProfileBtn');
+    const actions = document.getElementById('profileActions');
+    
+    if (!app.isEditingProfile) {
+        // Enable editing
+        forms.forEach(input => {
+            if (input.id !== 'studentId' && input.id !== 'email') { // Keep some fields readonly
+                input.removeAttribute('readonly');
+                input.style.backgroundColor = 'var(--white)';
+                input.style.color = 'var(--text-primary)';
+                input.style.cursor = 'text';
+            }
+        });
+        
+        editBtn.innerHTML = '<i class="fas fa-times" aria-hidden="true"></i> Cancel Edit';
+        editBtn.className = 'btn btn-outline';
+        actions.style.display = 'flex';
+        app.isEditingProfile = true;
+    } else {
+        cancelEditProfile();
+    }
+}
+
+function cancelEditProfile() {
+    const forms = document.querySelectorAll('.profile-form input, .profile-form select, .profile-form textarea');
+    const editBtn = document.getElementById('editProfileBtn');
+    const actions = document.getElementById('profileActions');
+    
+    // Disable editing and restore original values
+    forms.forEach(input => {
+        input.setAttribute('readonly', 'true');
+        input.style.backgroundColor = 'var(--background-gray)';
+        input.style.color = 'var(--text-secondary)';
+        input.style.cursor = 'not-allowed';
+        
+        // Restore original values
+        const fieldName = input.name;
+        if (app.user[fieldName]) {
+            input.value = app.user[fieldName];
+        }
+    });
+    
+    editBtn.innerHTML = '<i class="fas fa-edit" aria-hidden="true"></i> Edit Profile';
+    editBtn.className = 'btn btn-primary';
+    actions.style.display = 'none';
+    app.isEditingProfile = false;
+}
+
+function saveProfile() {
+    const formData = new FormData(elements.profileForm);
+    const bankingFormData = new FormData(document.getElementById('bankingForm'));
+    
+    // Update user object
+    app.user.firstName = formData.get('firstName');
+    app.user.lastName = formData.get('lastName');
+    app.user.phone = formData.get('phone');
+    app.user.course = formData.get('course');
+    app.user.bankName = bankingFormData.get('bankName');
+    app.user.accountNumber = bankingFormData.get('accountNumber');
+    app.user.accountHolder = bankingFormData.get('accountHolder');
+    app.user.name = `${app.user.firstName} ${app.user.lastName}`;
+    
+    // Save to localStorage
+    saveToLocalStorage('userProfile', app.user);
+    
+    // Update welcome message
+    const welcomeMessage = document.querySelector('.welcome-section h2');
+    if (welcomeMessage) {
+        welcomeMessage.textContent = `Welcome back, ${app.user.firstName}!`;
+    }
+    
+    // Exit edit mode
+    cancelEditProfile();
+    
+    showToast('Profile updated successfully!', 'success');
+}
+
+function handleProfileSubmission(e) {
+    e.preventDefault();
+    saveProfile();
 }
 
 // Transaction and claims data management
@@ -406,6 +621,33 @@ function loadSampleClaims() {
     ];
 }
 
+function loadSampleApplications() {
+    app.scholarshipApplications = [
+        {
+            id: 1,
+            type: 'merit',
+            gpa: 3.8,
+            householdIncome: 2500,
+            personalStatement: 'I have consistently maintained excellent academic performance...',
+            status: 'under_review',
+            submittedDate: '2025-07-01T10:30:00Z',
+            submittedBy: app.user.name,
+            amount: 2000
+        },
+        {
+            id: 2,
+            type: 'bursary',
+            gpa: 3.2,
+            householdIncome: 1800,
+            personalStatement: 'Due to my family\'s financial circumstances...',
+            status: 'approved',
+            submittedDate: '2025-06-15T14:20:00Z',
+            submittedBy: app.user.name,
+            amount: 1500
+        }
+    ];
+}
+
 // Data loading and updating
 function loadTabData(tabName) {
     switch (tabName) {
@@ -415,8 +657,14 @@ function loadTabData(tabName) {
         case 'claims':
             updateClaimsList();
             break;
+        case 'scholarships':
+            updateApplicationsList();
+            break;
+        case 'fees':
         case 'aid':
-            // Aid data is static for now
+        case 'profile':
+        case 'dashboard':
+            // These tabs have static content or are handled elsewhere
             break;
         default:
             break;
@@ -501,6 +749,39 @@ function updateClaimsList() {
     elements.claimsList.innerHTML = html;
 }
 
+function updateApplicationsList() {
+    if (!elements.applicationsList) return;
+    
+    if (app.scholarshipApplications.length === 0) {
+        elements.applicationsList.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-award" aria-hidden="true"></i>
+                <h3>No applications submitted</h3>
+                <p>Apply for scholarships and bursaries to get started.</p>
+                <button class="btn btn-primary" onclick="openModal('scholarshipModal')">
+                    <i class="fas fa-plus" aria-hidden="true"></i> Apply Now
+                </button>
+            </div>
+        `;
+        return;
+    }
+    
+    const html = app.scholarshipApplications.map(application => `
+        <div class="application-item">
+            <div class="application-details">
+                <h4>${formatScholarshipType(application.type)}</h4>
+                <p class="application-date">Submitted: ${formatDate(application.submittedDate)}</p>
+            </div>
+            <div class="application-amount">$${application.amount.toLocaleString()}</div>
+            <div class="application-status">
+                <span class="status-badge ${application.status}">${formatApplicationStatus(application.status)}</span>
+            </div>
+        </div>
+    `).join('');
+    
+    elements.applicationsList.innerHTML = html;
+}
+
 // Filtering and searching
 function filterTransactions() {
     updateTransactionsList();
@@ -583,6 +864,26 @@ function getTransactionIcon(type) {
     return icons[type] || 'fa-circle';
 }
 
+function formatScholarshipType(type) {
+    const types = {
+        merit: 'RP Merit Scholarship',
+        bursary: 'Financial Assistance Bursary',
+        sports: 'Sports Excellence Award',
+        community: 'Community Service Award'
+    };
+    return types[type] || type;
+}
+
+function formatApplicationStatus(status) {
+    const statuses = {
+        submitted: 'Submitted',
+        under_review: 'Under Review',
+        approved: 'Approved',
+        rejected: 'Rejected'
+    };
+    return statuses[status] || status;
+}
+
 function updatePendingClaimsAmount() {
     const pendingAmount = app.claims
         .filter(claim => claim.status === 'pending')
@@ -630,25 +931,151 @@ function debounce(func, wait) {
 }
 
 // Quick action functions
-function downloadStatement() {
-    showToast('Statement download started', 'success');
+function downloadStatement(type = 'all') {
+    showToast('Preparing your statement for download...', 'success');
     
-    // Simulate file download
     setTimeout(() => {
+        let content = '';
+        let filename = '';
+        
+        if (type === 'fees') {
+            content = generateFeeStatement();
+            filename = `rpay-fee-statement-${new Date().toISOString().split('T')[0]}.txt`;
+        } else {
+            content = generateFullStatement();
+            filename = `rpay-financial-statement-${new Date().toISOString().split('T')[0]}.txt`;
+        }
+        
+        // Create and download file
+        const blob = new Blob([content], { type: 'text/plain' });
+        const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
-        link.href = 'data:text/plain;charset=utf-8,RPay Financial Statement - Generated on ' + new Date().toLocaleDateString();
-        link.download = 'rpay-statement-' + new Date().toISOString().split('T')[0] + '.txt';
+        link.href = url;
+        link.download = filename;
         link.click();
+        window.URL.revokeObjectURL(url);
+        
+        showToast('Statement downloaded successfully!', 'success');
     }, 1000);
 }
 
-function viewHelp() {
-    showToast('Opening help center...', 'success');
+function generateFeeStatement() {
+    return `
+RPay Financial Admin - Fee Statement
+Generated on: ${new Date().toLocaleDateString('en-SG')}
+Student: ${app.user.name}
+Student ID: ${app.user.studentId}
+Course: ${app.user.course}
+
+==========================================
+CURRENT SEMESTER FEES BREAKDOWN
+==========================================
+Tuition Fee                    $4,200.00
+Student Services Fee             $250.00
+Lab Fee - Engineering            $300.00
+Technology Fee                   $150.00
+==========================================
+Total Amount                   $4,900.00
+Status: FULLY PAID
+Payment Date: July 5, 2025
+==========================================
+
+Contact Information:
+Email: fintech@rp.edu.sg
+Phone: +65 6510 3000
+Office Hours: Mon-Fri 9AM-5PM
+`;
+}
+
+function generateFullStatement() {
+    const transactionHistory = app.transactions.map(t => 
+        `${t.date}\t${t.description}\t${t.amount > 0 ? '+' : ''}$${t.amount}\t${t.status}`
+    ).join('\n');
     
-    // This would typically open a help modal or redirect to help page
-    setTimeout(() => {
-        alert('Help & Support\n\nFor assistance with RPay Financial Admin:\n\n• Email: fintech@rp.edu.sg\n• Phone: +65 6510 3000\n• Office Hours: Mon-Fri 9AM-5PM\n\nCommon questions:\n• How to submit a claim?\n• Payment deadlines\n• Financial aid status');
-    }, 500);
+    const claimsHistory = app.claims.map(c => 
+        `${c.submittedDate.split('T')[0]}\t${formatClaimType(c.type)}\t$${c.amount}\t${c.status}`
+    ).join('\n');
+    
+    return `
+RPay Financial Admin - Complete Financial Statement
+Generated on: ${new Date().toLocaleDateString('en-SG')}
+Student: ${app.user.name}
+Student ID: ${app.user.studentId}
+Course: ${app.user.course}
+
+==========================================
+FINANCIAL SUMMARY
+==========================================
+Total Fees Paid:              $${app.user.totalFees.toLocaleString()}
+Pending Claims:                $${app.user.pendingClaims.toLocaleString()}
+Financial Aid Received:        $${app.user.financialAid.toLocaleString()}
+Current Balance:               $${app.user.balance.toLocaleString()}
+
+==========================================
+TRANSACTION HISTORY
+==========================================
+Date\t\tDescription\t\tAmount\t\tStatus
+${transactionHistory}
+
+==========================================
+CLAIMS HISTORY
+==========================================
+Date\t\tType\t\tAmount\t\tStatus
+${claimsHistory}
+
+==========================================
+Contact Information:
+Email: fintech@rp.edu.sg
+Phone: +65 6510 3000
+Office Hours: Mon-Fri 9AM-5PM
+`;
+}
+
+// LocalStorage functions
+function saveToLocalStorage(key, data) {
+    try {
+        localStorage.setItem(`rpay_${key}`, JSON.stringify(data));
+    } catch (e) {
+        console.warn('Failed to save to localStorage:', e);
+    }
+}
+
+function loadFromLocalStorage(key) {
+    try {
+        const data = localStorage.getItem(`rpay_${key}`);
+        return data ? JSON.parse(data) : null;
+    } catch (e) {
+        console.warn('Failed to load from localStorage:', e);
+        return null;
+    }
+}
+
+function loadUserProfile() {
+    const savedProfile = loadFromLocalStorage('userProfile');
+    if (savedProfile) {
+        app.user = { ...app.user, ...savedProfile };
+        
+        // Update form fields
+        const profileInputs = document.querySelectorAll('#profileForm input, #bankingForm input');
+        profileInputs.forEach(input => {
+            const fieldName = input.name;
+            if (app.user[fieldName]) {
+                input.value = app.user[fieldName];
+            }
+        });
+        
+        // Update welcome message
+        const welcomeMessage = document.querySelector('.welcome-section h2');
+        if (welcomeMessage) {
+            welcomeMessage.textContent = `Welcome back, ${app.user.firstName || app.user.name}!`;
+        }
+    }
+    
+    // Load saved applications
+    const savedApplications = loadFromLocalStorage('scholarshipApplications');
+    if (savedApplications) {
+        app.scholarshipApplications = savedApplications;
+    }
 }
 
 // Error handling
