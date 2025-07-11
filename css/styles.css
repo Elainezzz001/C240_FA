@@ -53,6 +53,29 @@ body {
     gap: 1rem;
 }
 
+.back-button {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  padding: 10px 18px;
+  font-size: 15px;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(135deg, #027e4a, #0b8d45);
+  border: none;
+  border-radius: 30px;
+  text-decoration: none;
+  box-shadow: 0 6px 12px rgba(0, 102, 204, 0.25);
+  transition: all 0.3s ease;
+  z-index: 9999;
+}
+
+.back-button:hover {
+  background: linear-gradient(135deg, #005bb5, #1a8cff);
+  box-shadow: 0 8px 16px rgba(0, 102, 204, 0.35);
+  transform: translateY(-2px);
+}
+
 .logo {
     width: 50px;
     height: 50px;
@@ -480,6 +503,15 @@ body {
     align-items: center;
 }
 
+.restart-chat-btn {
+    background: none;
+    border: none;
+    color: var(--white);
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+
 .chat-close {
     background: none;
     border: none;
@@ -778,3 +810,4 @@ textarea:focus {
         page-break-inside: avoid;
     }
 }
+

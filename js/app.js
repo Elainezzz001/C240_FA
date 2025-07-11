@@ -26,6 +26,7 @@ class RPay {
             course: 'Diploma in Information Technology',
             email: 'john.doe@student.rp.edu.sg',
             phone: '+65 9123 4567',
+            GPA: 3.8,
             settings: {
                 emailNotifications: true,
                 smsAlerts: false,
@@ -99,6 +100,67 @@ class RPay {
                 navList.classList.toggle('active');
             });
         }
+
+        // --- Scholarship Apply Now Modal Logic ---
+
+        // 1. Open modal on Apply Now click
+        document.querySelectorAll('.scholarship-item .btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const card = e.target.closest('.scholarship-item');
+                const title = card?.querySelector('h4')?.textContent || '';
+
+                // Set student info
+                document.getElementById('applicantName').value = this.studentData.name;
+                document.getElementById('applicantId').value = this.studentData.studentId;
+
+                // Save the selected scholarship type for validation
+                document.getElementById('applicationForm').setAttribute('data-scholarship', title);
+
+                const modal = document.getElementById('applicationModal');
+                modal.classList.add('active');
+                modal.setAttribute('aria-hidden', 'false');
+                document.getElementById('applicantGpa').focus();
+            });
+        });
+
+        // 2. Close modal (X and Cancel)
+        document.getElementById('applicationModalClose')?.addEventListener('click', () => {
+            document.getElementById('applicationModal').classList.remove('active');
+        });
+
+        document.getElementById('cancelApplication')?.addEventListener('click', () => {
+            document.getElementById('applicationModal').classList.remove('active');
+        });
+
+        // 3. Handle form submission
+        document.getElementById('applicationForm')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const gpa = document.getElementById('applicantGpa').value;
+           const scholarship = document.getElementById('applicationForm').getAttribute('data-scholarship');
+            const numericGpa = parseFloat(gpa);
+
+            const gpaRequirements = {
+                "Merit Scholarship": 3.0,
+                "Need-Based Bursary": 0.0,  // No requirement
+                "Excellence Award": 3.5,
+                "Talent Bursary": 0.0,
+                "Leadership Grant": 3.2
+            };
+
+            const requiredGpa = gpaRequirements[scholarship] ?? 0.0;
+
+            if (!gpa || numericGpa < 0 || numericGpa > 4.0) {
+                window.rpayApp.showToast('Please enter a valid GPA.', 'error');
+            } else if (numericGpa < requiredGpa) {
+                window.rpayApp.showToast(`Minimum GPA of ${requiredGpa.toFixed(2)} required for ${scholarship}.`, 'error');
+            } else {
+                window.rpayApp.showToast('Application submitted successfully!', 'success');
+                document.getElementById('applicationForm').reset();
+                document.getElementById('applicationModal').classList.remove('active');
+            }
+
+        });
+
 
         // Download statement
         const downloadBtn = document.getElementById('downloadStatement');
@@ -195,6 +257,15 @@ class RPay {
                     sendMessage();
                 }
             });
+
+            restartChat?.addEventListener('click', () => {
+                const chatMessages = document.getElementById('chatMessages');
+                if (chatMessages) {
+                    chatMessages.innerHTML = '';
+                    this.addChatMessage('Hello! How can I assist you today?', 'bot');
+                }
+            });
+
         }
     }
 
@@ -217,7 +288,9 @@ class RPay {
             'claim': 'You have 3 pending claims. Visit the Claims section to track their status.',
             'payment': 'You can make payments through the School Fees section or contact our finance office.',
             'help': 'I can help you with fees, scholarships, claims, payments, and account information. What would you like to know?',
-            'default': 'Thank you for your message. For specific inquiries, please contact our support team at support@rp.edu.sg or call +65 6510 3000.'
+            'default': 'Thank you for your message. For specific inquiries, please contact our support team at support@rp.edu.sg or call +65 6510 3000.',
+            'how do i submit a claim': 'To submit a claim, go to the Claims section and fill in the required fields.',
+            'gpa': 'Your GPA is used in scholarship applications. Please ensure it’s updated in your profile.'
         };
 
         const lowerMessage = userMessage.toLowerCase();
@@ -602,3 +675,12 @@ if ('serviceWorker' in navigator) {
             });
     });
 }
+
+// Enable dashboard summary buttons to navigate tabs
+document.querySelectorAll('button[data-tab]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const tab = btn.getAttribute('data-tab');
+        const tabBtn = document.querySelector(`.nav-btn[data-tab="${tab}"]`);
+        tabBtn?.click();  // simulate click on nav tab
+    });
+});
