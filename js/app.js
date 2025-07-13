@@ -26,7 +26,7 @@ class RPay {
             course: 'Diploma in Information Technology',
             email: 'john.doe@student.rp.edu.sg',
             phone: '+65 9123 4567',
-            GPA: 3.8,
+            GPA: 'GPA',
             settings: {
                 emailNotifications: true,
                 smsAlerts: false,
@@ -437,7 +437,7 @@ class RPay {
 
     // Student Profile Management
     loadStudentProfile() {
-        const fields = ['name', 'studentId', 'course', 'email', 'phone'];
+        const fields = ['name', 'studentId', 'course', 'email', 'phone', 'GPA'];
 
         fields.forEach(field => {
             const element = document.getElementById(`display${field.charAt(0).toUpperCase() + field.slice(1)}`);
