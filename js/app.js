@@ -11,7 +11,6 @@ class RPay {
     init() {
         this.setupEventListeners();
         this.setupNavigation();
-        this.setupChat();
         this.setupModals();
         this.setupForms();
         this.loadTransactions();
@@ -218,94 +217,6 @@ class RPay {
         });
     }
 
-    // Chat System
-    setupChat() {
-        const chatBubble = document.getElementById('chatBubble');
-        const chatWindow = document.getElementById('chatWindow');
-        const chatClose = document.getElementById('chatClose');
-        const chatSend = document.getElementById('chatSend');
-        const chatInput = document.getElementById('chatInput');
-
-        if (chatBubble && chatWindow) {
-            chatBubble.addEventListener('click', () => {
-                chatWindow.classList.add('active');
-                chatWindow.setAttribute('aria-hidden', 'false');
-                chatInput?.focus();
-            });
-
-            chatClose?.addEventListener('click', () => {
-                chatWindow.classList.remove('active');
-                chatWindow.setAttribute('aria-hidden', 'true');
-            });
-
-            const sendMessage = () => {
-                const message = chatInput?.value.trim();
-                if (message) {
-                    this.addChatMessage(message, 'user');
-                    chatInput.value = '';
-
-                    // Simulate bot response
-                    setTimeout(() => {
-                        this.handleBotResponse(message);
-                    }, 1000);
-                }
-            };
-
-            chatSend?.addEventListener('click', sendMessage);
-            chatInput?.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    sendMessage();
-                }
-            });
-
-            restartChat?.addEventListener('click', () => {
-                const chatMessages = document.getElementById('chatMessages');
-                if (chatMessages) {
-                    chatMessages.innerHTML = '';
-                    this.addChatMessage('Hello! How can I assist you today?', 'bot');
-                }
-            });
-
-        }
-    }
-
-    addChatMessage(message, sender) {
-        const chatMessages = document.getElementById('chatMessages');
-        if (!chatMessages) return;
-
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${sender}-message`;
-        messageDiv.innerHTML = `<p>${message}</p>`;
-
-        chatMessages.appendChild(messageDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
-    handleBotResponse(userMessage) {
-        const responses = {
-            'fees': 'Your current outstanding fees are $2,450.00. You can view the breakdown in the School Fees section.',
-            'scholarship': 'You have 2 scholarship applications under review. Check the Scholarships section for details.',
-            'claim': 'You have 3 pending claims. Visit the Claims section to track their status.',
-            'payment': 'You can make payments through the School Fees section or contact our finance office.',
-            'help': 'I can help you with fees, scholarships, claims, payments, and account information. What would you like to know?',
-            'default': 'Thank you for your message. For specific inquiries, please contact our support team at support@rp.edu.sg or call +65 6510 3000.',
-            'how do i submit a claim': 'To submit a claim, go to the Claims section and fill in the required fields.',
-            'gpa': 'Your GPA is used in scholarship applications. Please ensure it’s updated in your profile.',
-            'bursary': 'Please visit the Scholarships & Bursary section for information on available bursaries and application procedures.'
-        };
-
-        const lowerMessage = userMessage.toLowerCase();
-        let response = responses.default;
-
-        for (const [key, value] of Object.entries(responses)) {
-            if (lowerMessage.includes(key)) {
-                response = value;
-                break;
-            }
-        }
-
-        this.addChatMessage(response, 'bot');
-    }
 
     // Modal System
     setupModals() {
